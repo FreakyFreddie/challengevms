@@ -1,0 +1,2 @@
+def vplatformstest():
+    print('yay')
