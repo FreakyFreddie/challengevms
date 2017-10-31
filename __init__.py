@@ -73,11 +73,13 @@ def load(app):
 
     def load_virt_config_options(virt_opt):
         #virt_opt_module = ".vplatforms." + virt_opt
-        modules = glob.glob(os.path.dirname(__file__) + "/*")
+        print(glob.glob(os.path.dirname(__file__) + "/*"))
         blacklist = {'keys', 'challenges', '__pycache__', 'templates'}
         module = importlib.import_module('.vplatforms', package='CTFd.plugins.challengevms')
         print(" * Loaded module, %s" % module)
 
+        module = importlib.import_module('.vsphere', package='CTFd.plugins.challengevms.vplatforms')
+        print(" * Loaded module, %s" % module)
         return 'test'
         # load config
         #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
