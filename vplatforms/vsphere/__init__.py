@@ -1,2 +1,0 @@
-def vspheretest():
-    print('yay')
