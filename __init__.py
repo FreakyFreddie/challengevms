@@ -73,11 +73,17 @@ def load(app):
             return render_template('manage.html')
 
     def load_virt_config_options(virt_opt):
-        virt_opt_module = "." + virt_opt
+        #prepare relative import
+        virt_opt_rel = "." + virt_opt
 
-        module = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms.vplatforms')
+        # import module
+        package = importlib.import_module(virt_opt_rel, package='CTFd.plugins.challengevms.vplatforms')
 
-        print(module.config.cfg)
+        # import setup & configuration
+        importlib.import_module('.config', package='CTFd.plugins.challengevms.vplatforms' + virt_opt_rel)
+        importlib.import_module('.setup', package='CTFd.plugins.challengevms.vplatforms' + virt_opt_rel)
+
+        print(package.config.cfg)
 
         return 'test'
         # load config
