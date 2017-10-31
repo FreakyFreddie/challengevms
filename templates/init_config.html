@@ -58,10 +58,9 @@
                     var counter = 0;
                     var tempkeyarray=[];
                     var htmltoappend;
-                    var obj = JSON.parse(message)
-                    var arr = $.map(obj, function(el) { return el });
+                    var obj = JSON.parse(message);
 
-                    alert(arr.toString());
+                    alert(obj[0]);
 
                     //print all options in the dictionary and their current values
                     /*var obj = JSON.parse(message, function (key, value) {
