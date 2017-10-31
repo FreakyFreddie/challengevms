@@ -89,8 +89,12 @@ def load(app):
         config_array=[]
 
         for section in config.sections():
+            print(section)
+            print(config.options(section))
             config[section] = {}
             for key, value in config.options(section):
+                print(key)
+                print(value)
                 config_array[section][key] = value
         #list of sections > form sections
         print(config_array)
