@@ -72,13 +72,16 @@ def load(app):
 
     def load_virt_config_options(virt_opt):
         virt_opt_module = "." + virt_opt
+        test = importlib.import_module('test')
+        print(test)
+        return test
 
         # load config
-        virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms.vplatforms')
+        #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms.vplatforms')
 
-        virt_platform.test()
+        #virt_platform.test()
         # return dictionary converted to json
-        return json.dumps(virt_platform.config)
+        #return json.dumps(virt_platform.config)
 
         # configure()
         # validate settings
