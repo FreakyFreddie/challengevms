@@ -74,7 +74,7 @@ def load(app):
     def load_virt_config_options(virt_opt):
         #virt_opt_module = ".vplatforms." + virt_opt
         modules = glob.glob(os.path.dirname(__file__) + "/*")
-        blacklist = {'keys', 'challenges', '__pycache__'}
+        blacklist = {'keys', 'challenges', '__pycache__', 'templates'}
         for module in modules:
             module_name = os.path.basename(module)
             if os.path.isdir(module) and module_name not in blacklist:
