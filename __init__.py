@@ -6,11 +6,12 @@ import yaml
 import pip
 import importlib
 import json
-import glob
 
 def load(app):
     #create plugin blueprint with template folder (https://github.com/CTFd/CTFd-Docker/blob/master/templates/containers.html)
     challengeVMs = Blueprint('challengeVMs', __name__, template_folder='templates')
+    vplatforms = importlib.import_module('.vplatforms', package='CTFd.plugins.challengevms')
+    print(" * Initialized challengevms virtualization platforms module, %s" % vplatforms)
 
     # generate list of supported virtualization platforms based on folders in virt_platforms directory
     supported_platforms_dir=os.path.abspath(os.path.join(os.path.dirname(__file__),"vplatforms"))
@@ -74,7 +75,7 @@ def load(app):
     def load_virt_config_options(virt_opt):
         virt_opt_module = "." + virt_opt
 
-        module = importlib.import_module('.vplatforms', package='CTFd.plugins.challengevms')
+
 
         module.vplatformstest()
 
