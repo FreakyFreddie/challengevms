@@ -87,9 +87,9 @@ def load(app):
         config.read(vplatforms + '/' + virt_opt)
 
         #list of sections > form sections
-        config.sections()
+        #config.sections()
 
-        return json.dumps(package.config.cfg)
+        return json.dumps(config.sections())
         # load config
         #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
 
