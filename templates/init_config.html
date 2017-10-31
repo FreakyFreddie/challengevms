@@ -60,7 +60,10 @@
                     var htmltoappend;
                     var obj = JSON.parse(message);
 
-                    alert(obj[0]);
+                    for(var i=0; i<obj.length; i++) {
+                        alert(obj[i]);
+                    }
+
 
                     //print all options in the dictionary and their current values
                     /*var obj = JSON.parse(message, function (key, value) {
