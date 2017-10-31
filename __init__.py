@@ -55,10 +55,16 @@ def load(app):
                 except NameError:
                     exit()
 
+                #check for section
+                #compare section options
+                #write value if section option is valid
+
                 # if virt_opt is a supported_virt_opt, return appropriate options
                 for supported_virt_opt in supported_virt_options:
                     if request.form.get("virt_opt") == supported_virt_opt:
-                        return load_virt_config_options(request.form.get("virt_opt"))
+                        config = load_virt_config_options(request.form.get("virt_opt"))
+                        return convert_config_json_list(config)
+
 
             else:
                 #render the initial config template, showing a select with the options
@@ -86,6 +92,9 @@ def load(app):
         config = configparser.ConfigParser()
         config.read(supported_platforms_dir + '/' + virt_opt + '/config.ini')
 
+        return config
+
+    def convert_config_json_list(config):
         config_array=[]
         option_array=[]
 
