@@ -81,6 +81,8 @@ def load(app):
                 module = '.' + module_name
                 module = importlib.import_module(module, package='CTFd.plugins.challengevms')
                 print(" * Loaded module, %s" % module)
+                
+        return 'test'
         # load config
         #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
 
