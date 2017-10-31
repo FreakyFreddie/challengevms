@@ -72,7 +72,7 @@ def load(app):
 
     def load_virt_config_options(virt_opt):
         virt_opt_module = "." + virt_opt
-        test = importlib.import_module('test')
+        test = importlib.import_module('vsphere')
         print(test)
         return test
 
