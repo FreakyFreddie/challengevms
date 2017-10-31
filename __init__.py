@@ -71,12 +71,13 @@ def load(app):
             return render_template('manage.html')
 
     def load_virt_config_options(virt_opt):
-        virt_opt_module = ".vplatforms." + virt_opt
+        # load config
+        v_platform = importlib.import_module('.vplatforms', package='CTFd.plugins.challengevms')
 
-        print(virt_opt_module)
+        virt_opt_module = "." + virt_opt
 
         # load config
-        virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
+        virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms.vplatforms')
 
         # return dictionary converted to json
         return json.dumps(virt_platform.config)
