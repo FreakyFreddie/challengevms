@@ -84,7 +84,7 @@ def load(app):
         # importlib.import_module('.config', package='CTFd.plugins.challengevms.vplatforms' + virt_opt_rel)
 
         config = configparser.ConfigParser()
-        config.read(supported_platforms_dir + '/' + virt_opt)
+        config.read(supported_platforms_dir + '/' + virt_opt + '/config.ini')
 
         #list of sections > form sections
         #config.sections()
