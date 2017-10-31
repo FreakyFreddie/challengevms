@@ -86,12 +86,15 @@ def load(app):
         config = configparser.ConfigParser()
         config.read(supported_platforms_dir + '/' + virt_opt + '/config.ini')
 
+        config_array=[]
+
+        for section in config:
+            for key in config[section]:
+                config_array[section][key] = config[section][key]
         #list of sections > form sections
         #config.sections()
 
-        print(config)
-
-        return json.dumps(config)
+        return json.dumps(config_array)
         # load config
         #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
 
