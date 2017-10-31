@@ -1,0 +1,93 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+    <div style="text-align:center">
+        <br>
+        <h1 class="text-center">Configure Challenge VMs</h1>
+        <h2 class="text-center">Select your virtualization platform</h2>
+        <div class="row">
+            <form action="{{ request.script_root }}/admin/challengeVMs/manage" method="POST">
+                <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                <fieldset>
+                    <select id="virt_opt">
+                        <option value="">Select virtualization platform...</option>
+                        {% for virt_opt in virt_opts %}
+                            <option value="{{ virt_opt }}">{{ virt_opt }}</option>
+                        {% endfor %}
+                    </select>
+                </fieldset>
+                <fieldset id="form_virt_opt">
+
+                </fieldset>
+                <fieldset id="submit_btn">
+                    <input type="submit" value="Submit" />
+                </fieldset>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+//include jquery
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+//AJAX TO HANDLE REQUESTS
+<script type="text/javascript">
+    $(document).ready(function()
+    {
+        //hide submit button
+        $("#submit_btn").css('display', 'none');
+
+        //when virtualization option is selected
+        $("#virt_opt").change(function() {
+            //remove old form
+            $("#form_virt_opt").empty();
+
+            //hide submit button
+            $("#submit_btn").css('display', 'none');
+
+            if($(this).val() != "")
+            {
+                //prepare request
+                $request = $.ajax({
+                    method:"POST",
+                    url:"{{ request.script_root }}/admin/challengeVMs/manage?r=" + new Date().getTime(),
+                    data: {nonce: "{{ nonce }}", virt_opt: $(this).children(':selected').val()}
+                });
+
+                $request.done(function(message)
+                {
+                    //print all options in the dictionary and their current values
+                    var obj = JSON.parse(message, function (key, value) {
+                        if (key != '') {
+                            //load form for virt_opt
+                            $("#form_virt_opt").append(
+                                '<br /><label for="'
+                                + key
+                                + '">' +
+                                + key
+                                + '</label><input type="text" name="'
+                                + key
+                                + '">'
+                                + value
+                                + '</input>'
+                            );
+                        }
+                    });
+
+                    //Display submit button
+                    $("#submit_btn").css('display', 'block');
+                });
+
+                $request.fail(function()
+                {
+                    $('<div class=""> <strong>Error.</strong> Something went wrong.</div>').insertBefore($("footer")).fadeOut(2000, function()
+                    {
+                        $(this).remove();
+                    });
+                });
+            }
+        });
+    });
+</script>
+
+{% endblock %}

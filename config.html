@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	//script_root is jinja template variable
+	//redirects to manage page of plugin
+    window.location = script_root + "/admin/challengeVMs/manage"
+</script>
+{% endblock %}
