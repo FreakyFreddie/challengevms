@@ -77,7 +77,7 @@ def load(app):
 
         module = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms.vplatforms')
 
-        module.vspheretest()
+        print(module.config.cfg)
 
         return 'test'
         # load config
