@@ -55,62 +55,52 @@
 
                 $request.done(function(message)
                 {
-                    var counter = 0;
                     var tempkeyarray=[];
-                    var htmltoappend;
+                    var htmltoappend = '';
                     var obj = JSON.parse(message);
 
                     for(var i=0; i<obj.length; i++) {
-                        alert(obj[i]);
-                    }
-
-
-                    //print all options in the dictionary and their current values
-                    /*var obj = JSON.parse(message, function (key, value) {
-                        if (key != '') {
-                            if(typeof value=='object') {
-                                // Add key to array
-                                tempkeyarray.push(key);
-
-                                // count up
-                                counter++;
+                        //if value is even, parse as section header, else as config options
+                        if(i % 2 === 0) {
+                            //start appending html only when section is completed
+                            if(i === 0){
+                                htmltoappend = '<div id="'
+                                + obj[i]
+                                + '"><h3>'
+                                + obj[i]
+                                + '</h3>';
                             }
-                            else if(counter > 0){
-                                //starting from inner object key
-                                // this generates nested divisions for each key that leads to an object
-                                for(var i = 0; tempkeyarray.length; i++) {
-                                    htmltoappend = '<div id="'
-                                    + tempkeyarray[i]
-                                    + '">'
-                                    + htmltoappend
-                                    + '</div>';
-                                }
-                                //reset counter
-                                counter = 0;
+                            else{
+                                //finish and print previous section
+                                htmltoappend += '</div>';
+                                $("#form_virt_opt").append(htmltoappend);
 
-
-                                //load form for virt_opt
-                                $("#form_virt_opt").append(
-
-                                );
+                                //initiate new htmlappend for next section
+                                htmltoappend = '<div id="'
+                                + obj[i]
+                                + '"><h3></h3>'
+                                + obj[i]
+                                + '</h3>';
                             }
-                            else {
-                                htmltoappend += '<br /><label for="'
-                                + key
-                                + '">' +
-                                + key
-                                + '</label><input type="text" name="'
-                                + key
-                                + '">'
-                                + value
-                                + '</input>';
-                            }
-                            //load form for virt_opt
-                            $("#form_virt_opt").append(
-
-                            );
                         }
-                    });*/
+                        else {
+                            for(var j = 0; j<obj[i].length; j++){
+                                htmltoappend += '<label for="'
+                                + obj[i][j][0]
+                                + '">' +
+                                + obj[i][j][0]
+                                + '</label><input type="text" name="'
+                                + obj[i][j][0]
+                                + '">'
+                                + obj[i][j][1]
+                                + '</input><br />';
+                            }
+                        }
+
+                        //append the final section
+                        htmltoappend += '</div>';
+                        $("#form_virt_opt").append(htmltoappend);
+                    }
 
                     //Display submit button
                     $("#submit_btn").css('display', 'block');
