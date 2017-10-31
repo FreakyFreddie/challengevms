@@ -87,12 +87,14 @@ def load(app):
         config.read(supported_platforms_dir + '/' + virt_opt + '/config.ini')
 
         config_array=[]
+        i=0
 
         for section in config.sections():
             print(section)
             print(config.options(section))
-            config_array.append(section)
-            config_array.append(config.options(section))
+            config_array[i].append(section)
+            config_array[i].append(config.options(section))
+            i += 1
         #list of sections > form sections
         print(config_array)
 
