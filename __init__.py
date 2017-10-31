@@ -6,6 +6,7 @@ import yaml
 import pip
 import importlib
 import json
+import glob
 
 def load(app):
     #create plugin blueprint with template folder (https://github.com/CTFd/CTFd-Docker/blob/master/templates/containers.html)
@@ -71,17 +72,18 @@ def load(app):
             return render_template('manage.html')
 
     def load_virt_config_options(virt_opt):
-        virt_opt_module = "." + virt_opt
-        test = importlib.import_module('test')
-        print(test)
-        test = importlib.import_module('vsphere')
-        print(test)
-        return test
-
+        #virt_opt_module = ".vplatforms." + virt_opt
+        modules = glob.glob(os.path.dirname(__file__) + "/*")
+        blacklist = {'keys', 'challenges', '__pycache__'}
+        for module in modules:
+            module_name = os.path.basename(module)
+            if os.path.isdir(module) and module_name not in blacklist:
+                module = '.' + module_name
+                module = importlib.import_module(module, package='CTFd.plugins.challengevms')
+                print(" * Loaded module, %s" % module)
         # load config
-        #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms.vplatforms')
+        #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
 
-        #virt_platform.test()
         # return dictionary converted to json
         #return json.dumps(virt_platform.config)
 
