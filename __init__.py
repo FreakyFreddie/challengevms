@@ -68,7 +68,7 @@ def load(app):
         print(virt_opt_module)
 
         # load config
-        virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.CTFd-challenge-VMs-plugin')
+        virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
 
         # return dictionary converted to json
         return json.dumps(virt_platform.config)
