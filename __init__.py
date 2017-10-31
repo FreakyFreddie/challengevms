@@ -89,7 +89,9 @@ def load(app):
         #list of sections > form sections
         #config.sections()
 
-        return json.dumps(config.sections())
+        print(config)
+
+        return json.dumps(config)
         # load config
         #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
 
