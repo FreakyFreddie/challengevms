@@ -75,10 +75,6 @@ def load(app):
     def load_virt_config_options(virt_opt):
         virt_opt_module = "." + virt_opt
 
-
-
-        module.vplatformstest()
-
         module = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms.vplatforms')
 
         module.vspheretest()
