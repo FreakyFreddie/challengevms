@@ -87,13 +87,19 @@ def load(app):
         config.read(supported_platforms_dir + '/' + virt_opt + '/config.ini')
 
         config_array=[]
+        option_array=[]
 
         #append config options to array
         for section in config.sections():
             print(section)
             print(config.options(section))
             config_array.append(section)
-            config_array.append(config.options(section))
+
+            for option in config.options(section):
+                option_array.append({option, config[section][option]})
+            
+            config_array.append(option_array)
+            option_array=[]
 
         return json.dumps(config_array)
         # load config
