@@ -45,8 +45,7 @@
             //hide submit button
             $("#submit_btn").css('display', 'none');
 
-            if($(this).val() != "")
-            {
+            if($(this).val() != "") {
                 //prepare request
                 $request = $.ajax({
                     method:"POST",
@@ -56,12 +55,45 @@
 
                 $request.done(function(message)
                 {
+                    var counter = 0;
+                    var tempkeyarray=[];
+                    var htmltoappend;
+                    var obj = JSON.parse(message)
+                    var arr = $.map(obj, function(el) { return el });
+
+                    alert(arr.toString());
+
                     //print all options in the dictionary and their current values
-                    var obj = JSON.parse(message, function (key, value) {
+                    /*var obj = JSON.parse(message, function (key, value) {
                         if (key != '') {
-                            //load form for virt_opt
-                            $("#form_virt_opt").append(
-                                '<br /><label for="'
+                            if(typeof value=='object') {
+                                // Add key to array
+                                tempkeyarray.push(key);
+
+                                // count up
+                                counter++;
+                            }
+                            else if(counter > 0){
+                                //starting from inner object key
+                                // this generates nested divisions for each key that leads to an object
+                                for(var i = 0; tempkeyarray.length; i++) {
+                                    htmltoappend = '<div id="'
+                                    + tempkeyarray[i]
+                                    + '">'
+                                    + htmltoappend
+                                    + '</div>';
+                                }
+                                //reset counter
+                                counter = 0;
+
+
+                                //load form for virt_opt
+                                $("#form_virt_opt").append(
+
+                                );
+                            }
+                            else {
+                                htmltoappend += '<br /><label for="'
                                 + key
                                 + '">' +
                                 + key
@@ -69,10 +101,14 @@
                                 + key
                                 + '">'
                                 + value
-                                + '</input>'
+                                + '</input>';
+                            }
+                            //load form for virt_opt
+                            $("#form_virt_opt").append(
+
                             );
                         }
-                    });
+                    });*/
 
                     //Display submit button
                     $("#submit_btn").css('display', 'block');

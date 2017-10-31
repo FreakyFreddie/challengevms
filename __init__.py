@@ -6,6 +6,7 @@ import yaml
 import pip
 import importlib
 import json
+import configparser
 
 def load(app):
     #create plugin blueprint with template folder (https://github.com/CTFd/CTFd-Docker/blob/master/templates/containers.html)
@@ -73,14 +74,20 @@ def load(app):
             return render_template('manage.html')
 
     def load_virt_config_options(virt_opt):
-        #prepare relative import
+        #prepare relative import (not necessary here, use for setup)
         virt_opt_rel = "." + virt_opt
 
         # import module
         package = importlib.import_module(virt_opt_rel, package='CTFd.plugins.challengevms.vplatforms')
 
         # import configuration options
-        importlib.import_module('.config', package='CTFd.plugins.challengevms.vplatforms' + virt_opt_rel)
+        # importlib.import_module('.config', package='CTFd.plugins.challengevms.vplatforms' + virt_opt_rel)
+
+        config = configparser.ConfigParser()
+        config.read(vplatforms + '/' + virt_opt)
+
+        #list of sections > form sections
+        config.sections()
 
         return json.dumps(package.config.cfg)
         # load config
