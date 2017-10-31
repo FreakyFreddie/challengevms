@@ -32,7 +32,9 @@ def load(app):
         # get supported_virt_options root directories (detect modules)
         supported_virt_options = []
         for (dirpath, dirnames, filenames) in os.walk(supported_platforms_dir):
-            supported_virt_options.extend(dirnames)
+            blacklist = {'__pycache__'}
+            if dirnames not in blacklist:
+                supported_virt_options.extend(dirnames)
             break
 
         #if settings file does not exist, render initial configuration, else render management UI
