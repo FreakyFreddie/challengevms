@@ -96,8 +96,8 @@ def load(app):
             config_array.append(section)
 
             for option in config.options(section):
-                option_array.append({option, config[section][option]})
-            
+                option_array.append([config[section][option], option])
+
             config_array.append(option_array)
             option_array=[]
 
