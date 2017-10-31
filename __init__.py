@@ -93,7 +93,7 @@ def load(app):
             for key, value in config.options(section):
                 config_array[section][key] = value
         #list of sections > form sections
-        #config.sections()
+        print(config_array)
 
         return json.dumps(config_array)
         # load config
