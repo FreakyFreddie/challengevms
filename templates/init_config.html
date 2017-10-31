@@ -91,17 +91,17 @@
                                 + obj[i][j][0]
                                 + '</label><input type="text" name="'
                                 + obj[i][j][0]
-                                + '">'
+                                + '" value="'
                                 + obj[i][j][1]
-                                + '</input><br />';
+                                +  '" /><br />';
                             }
                         }
-
-                        //append the final section
-                        htmltoappend += '</div>';
-                        $("#form_virt_opt").append(htmltoappend);
                     }
 
+                    //append the final section
+                    htmltoappend += '</div>';
+                    $("#form_virt_opt").append(htmltoappend);
+                    
                     //Display submit button
                     $("#submit_btn").css('display', 'block');
                 });
