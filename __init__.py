@@ -75,13 +75,9 @@ def load(app):
         #virt_opt_module = ".vplatforms." + virt_opt
         modules = glob.glob(os.path.dirname(__file__) + "/*")
         blacklist = {'keys', 'challenges', '__pycache__', 'templates'}
-        for module in modules:
-            module_name = os.path.basename(module)
-            if os.path.isdir(module) and module_name not in blacklist:
-                module = '.' + module_name
-                module = importlib.import_module(module, package='CTFd.plugins.challengevms')
-                print(" * Loaded module, %s" % module)
-                
+        module = importlib.import_module('.vplatforms', package='CTFd.plugins.challengevms')
+        print(" * Loaded module, %s" % module)
+
         return 'test'
         # load config
         #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
