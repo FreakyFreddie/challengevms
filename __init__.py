@@ -91,8 +91,8 @@ def load(app):
         for section in config.sections():
             print(section)
             print(config.options(section))
-            config_array[section] = {}
-            config_array[section].append(config.options(section))
+            config_array.append(section)
+            config_array.append(config.options(section))
         #list of sections > form sections
         print(config_array)
 
