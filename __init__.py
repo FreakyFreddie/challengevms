@@ -65,6 +65,7 @@ def load(app):
                         config = load_virt_config_options(request.form.get("virt_opt"))
                         return convert_config_json_list(config)
 
+                return render_template('init_config.html', virt_opts=supported_virt_options)
 
             else:
                 #render the initial config template, showing a select with the options

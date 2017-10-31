@@ -9,7 +9,7 @@
             <form action="{{ request.script_root }}/admin/challengeVMs/manage" method="POST">
                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                 <fieldset>
-                    <select id="virt_opt">
+                    <select id="virt_opt" name="virt_opt">
                         <option value="">Select virtualization platform...</option>
                         {% for virt_opt in virt_opts %}
                             <option value="{{ virt_opt }}">{{ virt_opt }}</option>
@@ -28,9 +28,7 @@
 {% endblock %}
 
 {% block scripts %}
-//include jquery
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-//AJAX TO HANDLE REQUESTS
 <script type="text/javascript">
     $(document).ready(function()
     {
