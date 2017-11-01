@@ -82,6 +82,15 @@ def load(app):
 
                         with open(supported_platforms_dir + '/' + request.form.get("virt_opt") + '/config.ini', 'w') as configfile:
                             config.write(configfile)
+                            configfile.close()
+
+                        # Write config option to settings file
+                        settings = configparser.ConfigParser()
+                        config['virtualization platform']['name'] = request.form.get("virt_opt")
+
+                        with open(settings_file) as settingsfile:
+                            settings.write(settingsfile)
+                            settingsfile.close()
 
                         return render_template('manage.html')
 
