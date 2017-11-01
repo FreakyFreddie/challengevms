@@ -53,19 +53,43 @@ def load(app):
                 try:
                     request.form.get("virt_opt")
                 except NameError:
-                    exit()
+                    return render_template('init_config.html', virt_opts=supported_virt_options)
 
-                #check for section
-                #compare section options
-                #write value if section option is valid
+                if request.form.get("virt_opt") in supported_virt_options:
+                    if(len(request.form) == 2):
+                        # if virt_opt is a supported_virt_opt, return appropriate options
+                        for supported_virt_opt in supported_virt_options:
+                            if request.form.get("virt_opt") == supported_virt_opt:
+                                config = load_virt_config_options(request.form.get("virt_opt"))
+                                return convert_config_json_list(config)
 
-                # if virt_opt is a supported_virt_opt, return appropriate options
-                for supported_virt_opt in supported_virt_options:
-                    if request.form.get("virt_opt") == supported_virt_opt:
-                        config = load_virt_config_options(request.form.get("virt_opt"))
-                        return convert_config_json_list(config)
+                        return render_template('init_config.html', virt_opts=supported_virt_options)
 
-                return render_template('init_config.html', virt_opts=supported_virt_options)
+                    elif(len(request.form) > 2):
+                        config = configparser.ConfigParser()
+                        config.read(supported_platforms_dir + '/' + request.form.get("virt_opt") + '/config.ini')
+
+                        for key in request.form:
+                            if(key != 'nonce' and key != 'virt_opt' ):
+                                configopt = key.split('.')
+                                sec = configopt[0]
+                                opt = configopt[1]
+
+                                # if sections.option exists, change its value
+                                if sec in config.sections():
+                                    if opt in config.options(sec):
+                                        config[sec][opt] = request.form.get(key)
+
+                        with open(supported_platforms_dir + '/' + request.form.get("virt_opt") + '/config.ini', 'w') as configfile:
+                            config.write(configfile)
+
+                        return render_template('manage.html')
+
+                    else:
+                        return render_template('init_config.html', virt_opts=supported_virt_options)
+
+                else:
+                    return render_template('init_config.html', virt_opts=supported_virt_options)
 
             else:
                 #render the initial config template, showing a select with the options

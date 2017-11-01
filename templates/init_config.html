@@ -53,7 +53,6 @@
 
                 $request.done(function(message)
                 {
-                    var tempkeyarray=[];
                     var htmltoappend = '';
                     var obj = JSON.parse(message);
 
@@ -70,22 +69,19 @@
                             //initiate new htmlappend for next section
                             htmltoappend = '<div><h3>'
                             + obj[i]
-                            + '</h3>'
-                            + '<input id="'
-                            + obj[i]
-                            + '" value="'
-                            + obj[i]
-                            + '" name="'
-                            + obj[i]
-                            + '" type="hidden" />';
+                            + '</h3>';
                         }
                         else {
                             for(var j = 0; j<obj[i].length; j++){
                                 htmltoappend += '<label for="'
+                                + obj[i-1]
+                                + '.'
                                 + obj[i][j][0]
                                 + '">'
                                 + obj[i][j][0]
                                 + '</label><input type="text" name="'
+                                + obj[i-1]
+                                + '.'
                                 + obj[i][j][0]
                                 + '" value="'
                                 + obj[i][j][1]
