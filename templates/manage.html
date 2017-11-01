@@ -1,15 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
-	{% if title %}
-    <title>{{ title }} - microblog</title>
-    {% else %}
-    <title>Welcome to microblog</title>
-    {% endif %}
-     <h1>Hi, {{ user.nickname }}!</h1>
-    {% for post in posts %}
-    <div><p>{{ post.author.nickname }} says: <b>{{ post.body }}</b></p></div>
-    {% endfor %}
+     <h1>Hi</h1>
 {% endblock %}
 
 {% block scripts %}
