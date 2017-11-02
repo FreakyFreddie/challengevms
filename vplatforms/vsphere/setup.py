@@ -1,5 +1,10 @@
+# install module dependencies etc.
 def setup():
-    # in virt_opt/configure
+    import os
     import pip
-    def install_virt_opt_requirements(virt_opt):
-        pip.main(['install', '-r requirements.txt --extra-index-url <file:///abs_path/to/sdk/lib/>', package]);
+
+    virt_opt_dir = os.path.abspath(os.path.dirname(__file__))
+
+    # install requirements for module & submodules
+    pip.main(['install', '-r', virt_opt_dir + '/lib/requirements.txt', '--extra-index-url', 'file://' + virt_opt_dir + '/lib'])
+    pip.main(['install', '-r', virt_opt_dir + '/requirements.txt'])

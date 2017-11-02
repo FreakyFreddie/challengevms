@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, abort
 from CTFd.utils import admins_only, is_admin
 import os
 import shutil
@@ -17,8 +17,6 @@ def load(app):
     # generate list of supported virtualization platforms based on folders in virt_platforms directory
     supported_platforms_dir=os.path.abspath(os.path.join(os.path.dirname(__file__),"vplatforms"))
     settings_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "settings.ini"))
-
-    # virt_opt_dir = os.path.abspath(os.path.join(os.path.dirname(supported_platforms_dir), virt_opt))
 
     if os.path.exists(settings_file) == True:
         exit()
@@ -46,8 +44,76 @@ def load(app):
             if supported_virt_option in blacklist:
                 supported_virt_options.remove(supported_virt_option)
 
-        #if settings file does not exist, render initial configuration, else render management UI
-        if os.path.exists(settings_file)==False:
+        #if settings file does not exist, render initial settings config, else render initial virtualization platform config or management UI
+        if os.path.exists(settings_file)==True:
+            #check if virt_opt is set and valid in settings.ini
+            settings = configparser.ConfigParser()
+            settings.read(settings_file)
+
+            #if the section.option exists and it's value is valid
+            if ('virtualization platform' in settings.sections()) and ('name' in settings.options('virtualization platform')) and (settings.get('virtualization platform', 'name') in supported_virt_options):
+                # Launch virtualization platform module
+
+                return render_template('manage.html')
+
+            else:
+                # render template to configure virt_opt & process configuration requests
+                if request.method == 'POST':
+                    # check if virt opt is set
+                    try:
+                        request.form.get("virt_opt")
+                    except NameError:
+                        abort(404)
+
+                    if (request.form.get("virt_opt") in supported_virt_options) and (len(request.form) == 2):
+                        # if virt_opt is a supported_virt_opt, return appropriate options
+                        for supported_virt_opt in supported_virt_options:
+                            if request.form.get("virt_opt") == supported_virt_opt:
+                                config = load_virt_config_options(request.form.get("virt_opt"))
+                                return convert_config_json_list(config)
+
+                        return render_template('init_config.html', virt_opts=supported_virt_options)
+
+                    elif (request.form.get("virt_opt") in supported_virt_options) and (len(request.form) > 2):
+                        config = configparser.ConfigParser()
+                        config.read(supported_platforms_dir + '/' + request.form.get("virt_opt") + '/config.ini')
+
+                        for key in request.form:
+                            if (key != 'nonce' and key != 'virt_opt'):
+                                configopt = key.split('.')
+                                sec = configopt[0]
+                                opt = configopt[1]
+
+                                # if sections.option exists, change its value
+                                if sec in config.sections():
+                                    if opt in config.options(sec):
+                                        config.set(sec, opt, request.form.get(key))
+
+                        with open(supported_platforms_dir + '/' + request.form.get("virt_opt") + '/config.ini',
+                                  'w') as configfile:
+                            config.write(configfile)
+                            configfile.close()
+
+                        # setup the virt_opt module
+                        setup_virt_opt(request.form.get("virt_opt"))
+
+                        # Write config option to settings file
+                        settings = configparser.ConfigParser()
+                        settings.add_section('virtualization platform')
+                        settings.set('virtualization platform', 'name', request.form.get("virt_opt"))
+
+                        with open(settings_file, 'w') as settingsfile:
+                            settings.write(settingsfile)
+                            settingsfile.close()
+
+                        # Launch virtualization platform module
+
+
+                        return render_template('manage.html')
+
+                    else:
+                        return render_template('init_config.html', virt_opts=supported_virt_options)
+
             if request.method == 'POST':
                 #check if virt opt is set
                 try:
@@ -96,6 +162,9 @@ def load(app):
                             settings.write(settingsfile)
                             settingsfile.close()
 
+                        # Run virtualization platform module
+
+
                         return render_template('manage.html')
 
                     else:
@@ -105,15 +174,15 @@ def load(app):
                     return render_template('init_config.html', virt_opts=supported_virt_options)
 
             else:
-                #render the initial config template, showing a select with the options
-                return render_template('init_config.html',virt_opts=supported_virt_options)
+                #render the initial settings template, where user can configure the plugins general settings
+
+
+                return render_template('init_settings.html',opts=supported_virt_options)
         else:
-            #add error handling for bad config
+            settings = configparser.ConfigParser()
+            settings.read(supported_platforms_dir + '/' + request.form.get("virt_opt") + '/config.ini')
 
             # try load config
-            #(base dictionary)
-            #(virt_opt_1)
-            #(virt_opt_2)
 
             return render_template('manage.html')
 
@@ -155,31 +224,14 @@ def load(app):
         # run setup script
         package.setup()
 
-    class challengeVMs_config:
-        def __init__(self, config_file):
-            self.config_file = name
-            self.tricks = []  # creates a new empty list for each dog
 
-        def add_trick(self, trick):
-            self.tricks.append(trick)
 
     #config page (DNS, subnets, template datastore...)
+    #DNS SETTINGS
+    #IP
+    #SUBNET
 
-
-    #upload new VM template
-    #def uploadVM():
-        #
-
-    #deploy an existing VM template
-    #def deployVM(template, DNS):
-        #check DNS availability
-        #clone from template
-        #register at DNS
-        #add to database
-
-    #def resetVM(id):
-
-
-    #def destroyVM():
+    #add_record
+    #remove_record
 
     app.register_blueprint(challengeVMs)
