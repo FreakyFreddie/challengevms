@@ -86,7 +86,7 @@ def load(app):
 
                         # Write config option to settings file
                         settings = configparser.ConfigParser()
-                        config['virtualization platform']['name'] = request.form.get("virt_opt")
+                        settings['virtualization platform']['name'] = request.form.get("virt_opt")
 
                         with open(settings_file) as settingsfile:
                             settings.write(settingsfile)
@@ -134,8 +134,6 @@ def load(app):
 
         #append config options to array
         for section in config.sections():
-            print(section)
-            print(config.options(section))
             config_array.append(section)
 
             for option in config.options(section):
