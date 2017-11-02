@@ -78,11 +78,14 @@ def load(app):
                                 # if sections.option exists, change its value
                                 if sec in config.sections():
                                     if opt in config.options(sec):
-                                        config[sec][opt] = request.form.get(key)
+                                        config.set(sec, opt, request.form.get(key))
 
                         with open(supported_platforms_dir + '/' + request.form.get("virt_opt") + '/config.ini', 'w') as configfile:
                             config.write(configfile)
                             configfile.close()
+
+                        # setup the virt_opt module
+                        setup_virt_opt(request.form.get("virt_opt"))
 
                         # Write config option to settings file
                         settings = configparser.ConfigParser()
@@ -115,19 +118,17 @@ def load(app):
             return render_template('manage.html')
 
     def load_virt_config_options(virt_opt):
-        #prepare relative import (not necessary here, use for setup)
-        virt_opt_rel = "." + virt_opt
-
-        # import module
-        package = importlib.import_module(virt_opt_rel, package='CTFd.plugins.challengevms.vplatforms')
-
-        # import configuration options
-        # importlib.import_module('.config', package='CTFd.plugins.challengevms.vplatforms' + virt_opt_rel)
-
         config = configparser.ConfigParser()
         config.read(supported_platforms_dir + '/' + virt_opt + '/config.ini')
 
         return config
+
+    def load_virt_opt_package(virt_opt):
+        # prepare relative import
+        virt_opt_rel = "." + virt_opt
+
+        # import module
+        return importlib.import_module(virt_opt_rel, package='CTFd.plugins.challengevms.vplatforms')
 
     def convert_config_json_list(config):
         config_array=[]
@@ -144,20 +145,15 @@ def load(app):
             option_array=[]
 
         return json.dumps(config_array)
-        # load config
-        #virt_platform = importlib.import_module(virt_opt_module, package='CTFd.plugins.challengevms')
 
-        # return dictionary converted to json
-        #return json.dumps(virt_platform.config)
+    def setup_virt_opt(virt_opt):
+        package = load_virt_opt_package(virt_opt)
 
-        # configure()
-        # validate settings
-        # write to settings file
-    #catch request
+        # import setup script function
+        importlib.import_module('.setup', package='CTFd.plugins.challengevms.vplatforms.' + virt_opt)
 
-    #in virt_opt/configure
-    def install_virt_opt_requirements(virt_opt):
-        pip.main(['install', '-r requirements.txt --extra-index-url <file:///abs_path/to/sdk/lib/>', package]);
+        # run setup script
+        package.setup()
 
     class challengeVMs_config:
         def __init__(self, config_file):
