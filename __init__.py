@@ -89,7 +89,7 @@ def load(app):
                         settings.add_section('virtualization platform')
                         settings.set('virtualization platform', 'name', request.form.get("virt_opt"))
 
-                        with open(settings_file) as settingsfile:
+                        with open(settings_file, 'w') as settingsfile:
                             settings.write(settingsfile)
                             settingsfile.close()
 
