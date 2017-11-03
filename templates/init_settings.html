@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+    <div style="text-align:center">
+        <br>
+        <h1 class="text-center">Configure Challenge VMs</h1>
+        <h2 class="text-center">Select your virtualization platform</h2>
+        <div class="row">
+            <form action="{{ request.script_root }}/admin/challengeVMs/manage" method="POST">
+                <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                    {% for section in valid_settings %}
+                        <fieldset>
+                        {% for key, value in section.items() %}
+                            <h3>{{key}}</h3>
+                            {% for option in value %}
+                                {% for k, v in value.items %}
+                                    <label for="{{key}}.{{k}}">{{k}}</label>
+                                    <input type="text" name="{{key}}.{{k}}" value=""/>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+                        </fieldset>
+                    {% endfor %}
+                <fieldset id="submit_btn">
+                    <input type="submit" value="Submit" />
+                </fieldset>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
