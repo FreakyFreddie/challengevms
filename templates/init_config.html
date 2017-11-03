@@ -5,7 +5,7 @@
         <br>
         <h1 class="text-center">Configure Challenge VMs</h1>
         <h2 class="text-center">Select your virtualization platform</h2>
-        <div class="row text-center">
+        <div class="row">
             <form action="{{ request.script_root }}/admin/challengeVMs/manage" method="POST">
                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                 <fieldset>
@@ -77,7 +77,7 @@
                                 + obj[i-1]
                                 + '.'
                                 + obj[i][j][0]
-                                + '">'
+                                + '"><br />'
                                 + obj[i][j][0]
                                 + '</label><input type="text" name="'
                                 + obj[i-1]

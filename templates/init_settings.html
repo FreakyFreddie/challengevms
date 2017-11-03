@@ -5,7 +5,7 @@
         <br>
         <h1 class="text-center">Configure Challenge VMs</h1>
         <h2 class="text-center">Select your virtualization platform</h2>
-        <div class="row text-center">
+        <div class="row">
             <form action="{{ request.script_root }}/admin/challengeVMs/manage" method="POST">
                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                     {% for section in valid_settings %}
@@ -15,7 +15,9 @@
                             {% for option in value %}
                                 {% for k, v in option.items() %}
                                     <label for="{{key}}.{{k}}">{{k}}</label>
+                                    <br />
                                     <input type="text" name="{{key}}.{{k}}" value=""/>
+                                    <br />
                                 {% endfor %}
                             {% endfor %}
                         {% endfor %}
