@@ -13,7 +13,7 @@
                         {% for key, value in section.items() %}
                             <h3>{{key}}</h3>
                             {% for option in value %}
-                                {% for k, v in value.items() %}
+                                {% for k, v in option.items() %}
                                     <label for="{{key}}.{{k}}">{{k}}</label>
                                     <input type="text" name="{{key}}.{{k}}" value=""/>
                                 {% endfor %}
