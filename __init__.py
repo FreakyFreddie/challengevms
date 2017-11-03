@@ -188,7 +188,7 @@ def load(app):
         importlib.import_module('.setup', package='CTFd.plugins.challengevms.vplatforms.' + virt_opt)
 
         # run setup script
-        package.setup()
+        package.setup.setup()
 
 
 
