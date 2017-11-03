@@ -141,11 +141,12 @@ def load(app):
 
                         # if sections.option exists, change its value
                         for section in valid_settings:
-                            for k, v in section:
+                            for k, v in section.items():
                                 if k == sec:
-                                    for akey, avalue in v:
-                                        if avalue == opt:
-                                            settings.set(sec, opt, request.form.get(key))
+                                    for option in v:
+                                        for akey, avalue in option.items():
+                                            if akey == opt:
+                                                settings.set(sec, opt, request.form.get(key))
 
                 with open(settings_file, 'w') as settingsfile:
                     settings.write(settingsfile)
