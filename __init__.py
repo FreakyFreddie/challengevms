@@ -142,7 +142,8 @@ def load(app):
                         # if sections.option exists, change its value
                         for section in valid_settings:
                             for k, v in section.items():
-                                settings.add_section(k)
+                                if k not in settings.sections():
+                                    settings.add_section(k)
                                 if k == sec:
                                     for option in v:
                                         for akey, avalue in option.items():
