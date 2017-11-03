@@ -21,11 +21,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="init_config.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="init_config.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/templates/init_config.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="81" column="68" lean-forward="false" selection-start-line="81" selection-start-column="50" selection-end-line="81" selection-end-column="68" />
+            <state relative-caret-position="147">
+              <caret line="7" column="29" lean-forward="false" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
               </folding>
@@ -45,11 +45,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="init_settings.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="init_settings.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/init_settings.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="15" column="53" lean-forward="false" selection-start-line="15" selection-start-column="53" selection-end-line="15" selection-end-column="53" />
+            <state relative-caret-position="147">
+              <caret line="7" column="37" lean-forward="false" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
               </folding>
@@ -168,13 +168,13 @@
         <option value="$PROJECT_DIR$/vplatforms/vsphere/__init__.py" />
         <option value="$PROJECT_DIR$/vplatforms/vsphere/config.py" />
         <option value="$PROJECT_DIR$/vplatforms/vsphere/config.ini" />
-        <option value="$PROJECT_DIR$/templates/init_config.html" />
         <option value="$PROJECT_DIR$/templates/manage.html" />
         <option value="$PROJECT_DIR$/vplatforms/vsphere/requirements.txt" />
         <option value="$PROJECT_DIR$/vplatforms/vsphere/setup.py" />
         <option value="$PROJECT_DIR$/vplatforms/vsphere/run.py" />
         <option value="$PROJECT_DIR$/__init__.py" />
         <option value="$PROJECT_DIR$/templates/init_settings.html" />
+        <option value="$PROJECT_DIR$/templates/init_config.html" />
       </list>
     </option>
   </component>
@@ -527,20 +527,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/init_config.html">
+    <entry file="file://$PROJECT_DIR$/templates/init_settings.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="81" column="68" lean-forward="false" selection-start-line="81" selection-start-column="50" selection-end-line="81" selection-end-column="68" />
+        <state relative-caret-position="147">
+          <caret line="7" column="37" lean-forward="false" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
           <folding>
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/init_settings.html">
+    <entry file="file://$PROJECT_DIR$/templates/init_config.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="15" column="53" lean-forward="false" selection-start-line="15" selection-start-column="53" selection-end-line="15" selection-end-column="53" />
+        <state relative-caret-position="147">
+          <caret line="7" column="29" lean-forward="false" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
           <folding>
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
           </folding>
