@@ -18,12 +18,6 @@ def load(app):
     supported_platforms_dir=os.path.abspath(os.path.join(os.path.dirname(__file__),"vplatforms"))
     settings_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "settings.ini"))
 
-    if os.path.exists(settings_file) == True:
-        exit()
-        # load config from the start
-        # baseconfig + subconfigs
-        # import modules
-
     # Set up route to management interface
     @challengeVMs.route('/admin/challengeVMs/manage', methods=['GET','POST'])
     @admins_only
