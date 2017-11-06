@@ -6,7 +6,7 @@
         <h1 class="text-center">Configure Challenge VMs</h1>
         <h2 class="text-center">Select your virtualization platform</h2>
         <div class="row">
-            <form action="{{ request.script_root }}/admin/challengeVMs/manage" method="POST">
+            <form action="{{ request.script_root }}/admin/challengeVMs/configure" method="POST">
                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                 <fieldset>
                     <select id="virt_opt" name="virt_opt">
@@ -47,7 +47,7 @@
                 //prepare request
                 $request = $.ajax({
                     method:"POST",
-                    url:"{{ request.script_root }}/admin/challengeVMs/manage?r=" + new Date().getTime(),
+                    url:"{{ request.script_root }}/admin/challengeVMs/configure?r=" + new Date().getTime(),
                     data: {nonce: "{{ nonce }}", virt_opt: $(this).children(':selected').val()}
                 });
 
