@@ -159,11 +159,11 @@ def load(app):
             #package.run.run()
 
             # validate virt opt
-            if not check_virt_opt(settings['bitbucket.org']['User']):
+            if not check_virt_opt(settings['virtualization platform']['name']):
                 return redirect(url_for('.configure'), code=302)
             else:
                 # load module
-                package = load_virt_opt_package(settings['bitbucket.org']['User'])
+                package = load_virt_opt_package(settings['virtualization platform']['name'])
 
             # if POST new VM -> render template to create new VM
 
