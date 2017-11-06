@@ -254,11 +254,11 @@ def load(app):
         else:
             return False
 
-    def validate_ip(addr):
-        try:
-            socket.inet_aton(addr)
+    #def validate_ip(addr):
+        #try:
+            #socket.inet_aton(addr)
             # legal
-        except socket.error:
+        #except socket.error:
             # Not legal
 
     # config page (DNS, subnets, template datastore...)
