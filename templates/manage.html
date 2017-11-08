@@ -8,11 +8,17 @@
           margin-top: 4px;
           float: left;
      }
+
      .green {
            background: green;
      }
+
      .red {
            background: red;
+     }
+
+     .button-addon{
+
      }
 </style>
 {% endblock %}
@@ -24,22 +30,48 @@
                <button class="btn btn-theme btn-outlined">
                     VM 1<br />
                     chal1.ctf.be<br />
-                    <span class="circle green"></span>online
+                    <span class="circle green"></span>online<br />
+                    <div class="button-addon">
+                         <button class="play"><i class="fa fa-play" aria-hidden="true"></i></button>
+                         <button class="pause"><i class="fa fa-pause" aria-hidden="true"></i></button>
+                         <button class="stop"><i class="fa fa-stop" aria-hidden="true"></i></button>
+                         <button class="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                    </div>
                </button>
                <button class="btn btn-theme btn-outlined">
                     VM 2<br />
                     chal2.ctf.be<br />
-                    online
+                    <span class="circle green"></span>online<br />
+                    <div class="button-addon">
+                         <button class="play"><i class="fa fa-play" aria-hidden="true"></i></button>
+                         <button class="pause"><i class="fa fa-pause" aria-hidden="true"></i></button>
+                         <button class="stop"><i class="fa fa-stop" aria-hidden="true"></i></button>
+                         <button class="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                    </div>
                </button>
-               <button class="btn btn-theme btn-outlined">
-                    VM 3<br />
-                    chal3.ctf.be<br />
-                    online
-               </button>
+               <div class="btn btn-theme btn-outlined">
+                    <button>
+                         VM 3<br />
+                         chal3.ctf.be<br />
+                         <span class="circle green"></span>online<br />
+                    </button>
+                    <div class="button-addon">
+                         <button class="play"><i class="fa fa-play" aria-hidden="true"></i></button>
+                         <button class="pause"><i class="fa fa-pause" aria-hidden="true"></i></button>
+                         <button class="stop"><i class="fa fa-stop" aria-hidden="true"></i></button>
+                         <button class="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                    </div>
+               </div>
                <button class="btn btn-theme btn-outlined">
                     VM 4<br />
                     chal4.ctf.be<br />
-                    <span class="circle red"></span>offline
+                    <span class="circle red"></span>offline<br />
+                    <div class="button-addon">
+                         <button class="play"><i class="fa fa-play" aria-hidden="true"></i></button>
+                         <button class="pause"><i class="fa fa-pause" aria-hidden="true"></i></button>
+                         <button class="stop"><i class="fa fa-stop" aria-hidden="true"></i></button>
+                         <button class="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                    </div>
                </button>
           </div>
      </div>
@@ -53,7 +85,18 @@
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        //script to refresh VMs
+        //script to refresh VMs dynamically (based on JSON list
+        // when using dictionary, don't forget to order
+        // ping backend every 5 minutes
+
+
+        // backend responds with VMs & their status
+        // load JSON list of VMs
+        // compare VMs
+        // Change status of appropriate VMs
+        //get id, status, domain of div.elements
+        // if id, status & domain are the same, ok
+        // if not, overwrite element contents
     });
 </script>
 {% endblock %}

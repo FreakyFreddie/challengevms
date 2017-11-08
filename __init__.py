@@ -42,8 +42,7 @@ def load(app):
         # else render initial virtualization platform config or management UI
         if os.path.exists(settings_file):
             # check if virt_opt is set and valid in settings.ini
-            settings = configparser.ConfigParser()
-            settings.read(settings_file)
+            settings = load_settings()
 
             # if the section.option exists and it's value is valid
             if ('virtualization platform' in settings.sections()) and (
@@ -91,8 +90,7 @@ def load(app):
                         setup_virt_opt(request.form.get("virt_opt"))
 
                         # Write config option to settings file
-                        settings = configparser.ConfigParser()
-                        settings.read(settings_file)
+                        settings = load_settings()
 
                         if 'virtualization platform' not in settings.sections():
                             settings.add_section('virtualization platform')
@@ -152,8 +150,7 @@ def load(app):
     def manage():
         if os.path.exists(settings_file):
             # check if virt_opt is set and valid in settings.ini
-            settings = configparser.ConfigParser()
-            settings.read(settings_file)
+            settings = load_settings()
 
             #package = load_virt_opt_package(request.form.get("virt_opt"))
             #package.run.run()
@@ -173,6 +170,22 @@ def load(app):
             return render_template('manage.html')
         else:
             return redirect(url_for('.configure'), code=302)
+
+    # Set up routes to create new VM
+    @challengevms.route('/admin/challengeVMs/manage/newVM', methods=['POST'])
+    @admins_only
+    # function triggered by surfing to the route as admin
+    def new_vm():
+        # load settings
+        settings = load_settings()
+
+        # load virt_opt module
+        package = load_virt_opt_package(settings["virtualization platform"]["name"])
+
+        # fetch list of available templates
+        templates = package.run.fetch_template_list()
+
+        return render_template('new_VM.html', templates=templates)
 
     # Set up routes to VM calls
     @challengevms.route('/admin/challengeVMs/manage/VM/<int:vm_id>/update', methods=['POST'])
@@ -195,6 +208,12 @@ def load(app):
     @admins_only
     def destroy_vm(vm_id):
         exit()
+
+    def load_settings():
+        settings = configparser.ConfigParser()
+        settings.read(settings_file)
+
+        return settings
 
     def load_virt_config_options(virt_opt):
         config = configparser.ConfigParser()

@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% block content %}
+     <div class="row">
+          <h1>Challenge VMs</h1>
+          <div class="row">
+               <button class="btn btn-theme btn-outlined" id="new-vm">New VM<br />+<br /></button>
+               <button class="btn btn-theme btn-outlined">
+                    VM 1<br />
+                    chal1.ctf.be<br />
+                    <span class="circle green"></span>online
+               </button>
+               <button class="btn btn-theme btn-outlined">
+                    VM 2<br />
+                    chal2.ctf.be<br />
+                    online
+               </button>
+               <button class="btn btn-theme btn-outlined">
+                    VM 3<br />
+                    chal3.ctf.be<br />
+                    online
+               </button>
+               <button class="btn btn-theme btn-outlined">
+                    VM 4<br />
+                    chal4.ctf.be<br />
+                    <span class="circle red"></span>offline
+               </button>
+          </div>
+     </div>
+     <div class="row">
+          <h1>Actions</h1>
+          <button class="btn btn-theme btn-outlined" id="change-settings">Change settings<br />+</button>
+     </div>
+{% endblock %}
+
+{% block scripts %}
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        //script to refresh VMs
+    });
+</script>
+{% endblock %}
+
+
+    
