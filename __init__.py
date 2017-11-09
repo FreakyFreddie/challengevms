@@ -8,6 +8,8 @@ import importlib
 import json
 import configparser
 import socket
+from CTFd.models import db
+from .models import challengeVM, challengeDNS
 
 
 def load(app):
@@ -285,7 +287,10 @@ def load(app):
     # IP
     # SUBNET
     # network settings
-
+    challengeVM = challengeVM(name=name, dns_id=None)
+    db.session.add(challengeVM)
+    db.session.commit()
+    db.session.close()
     # add_record
     # remove_record
 
