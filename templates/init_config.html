@@ -43,7 +43,7 @@
             //hide submit button
             $("#submit_btn").css('display', 'none');
 
-            if($(this).val() != "") {
+            if($(this).val() !== "") {
                 //prepare request
                 $request = $.ajax({
                     method:"POST",

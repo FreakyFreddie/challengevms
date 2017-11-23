@@ -17,64 +17,92 @@
            background: red;
      }
 
-     .button-addon{
+     .orange {
+           background: orange;
+     }
+
+     .gray {
+           background: gray;
+     }
+
+     .vm-operations{
 
      }
 </style>
 {% endblock %}
 {% block content %}
-     <div class="row">
-          <h1>Challenge VMs</h1>
-          <div class="row">
-               <button class="btn btn-theme btn-outlined" id="new-vm">New VM<br />+<br /></button>
-               <button class="btn btn-theme btn-outlined">
-                    VM 1<br />
-                    chal1.ctf.be<br />
-                    <span class="circle green"></span>online<br />
-                    <div class="button-addon">
-                         <button class="play"><i class="fa fa-play" aria-hidden="true"></i></button>
-                         <button class="pause"><i class="fa fa-pause" aria-hidden="true"></i></button>
-                         <button class="stop"><i class="fa fa-stop" aria-hidden="true"></i></button>
-                         <button class="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-                    </div>
-               </button>
-               <button class="btn btn-theme btn-outlined">
-                    VM 2<br />
-                    chal2.ctf.be<br />
-                    <span class="circle green"></span>online<br />
-                    <div class="button-addon">
-                         <button class="play"><i class="fa fa-play" aria-hidden="true"></i></button>
-                         <button class="pause"><i class="fa fa-pause" aria-hidden="true"></i></button>
-                         <button class="stop"><i class="fa fa-stop" aria-hidden="true"></i></button>
-                         <button class="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-                    </div>
-               </button>
-               <div class="btn btn-theme btn-outlined">
-                    <button>
-                         VM 3<br />
-                         chal3.ctf.be<br />
-                         <span class="circle green"></span>online<br />
-                    </button>
-                    <div class="button-addon">
-                         <button class="play"><i class="fa fa-play" aria-hidden="true"></i></button>
-                         <button class="pause"><i class="fa fa-pause" aria-hidden="true"></i></button>
-                         <button class="stop"><i class="fa fa-stop" aria-hidden="true"></i></button>
-                         <button class="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-                    </div>
-               </div>
-               <button class="btn btn-theme btn-outlined">
-                    VM 4<br />
-                    chal4.ctf.be<br />
-                    <span class="circle red"></span>offline<br />
-                    <div class="button-addon">
-                         <button class="play"><i class="fa fa-play" aria-hidden="true"></i></button>
-                         <button class="pause"><i class="fa fa-pause" aria-hidden="true"></i></button>
-                         <button class="stop"><i class="fa fa-stop" aria-hidden="true"></i></button>
-                         <button class="refresh"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-                    </div>
-               </button>
-          </div>
-     </div>
+    <div class="text-center">
+        {% for error in errors %}
+            <div class="alert alert-danger alert-dismissable" role="alert">
+              <span class="sr-only">Error:</span>
+              {{ error }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="row">
+        <h1>Challenge VMs</h1>
+        <div class="row">
+            {% for vm in vms %}
+                <div class="btn btn-theme btn-outlined">
+                {{ vm["Name"] }}<br />
+                {{ vm["Ipaddress"] }}<br />
+                <span class="circle
+                {% if vm["State"] == "poweredOn" %}
+                    green
+                {% elif vm["State"] == "poweredOff" %}
+                    red
+                {% elif vm["State"] == "suspended" %}
+                    orange
+                {% else %}
+                    gray
+                {% endif %}
+                "></span>{{ vm["State"] }}<br />
+                        <div class="vm-operations">
+                        #power on, standby, suspend, resume, restart buttons
+                            {% if vm["State"] == "poweredOff" %}
+                                <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/start" method="POST">
+                                    <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                                    <button class="play" title="Start the VM"><i class="fa fa-play"></i></button>
+                                </form>
+
+                            {% elif vm["State"] == "poweredOn" %}
+                                <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/suspend" method="POST">
+                                    <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                                    <button class="suspend" title="Suspend the VM"><i class="fa fa-pause"></i></button>
+                                </form>
+                                {% if vm["guestToolsRunning"] %}
+                                    # shut down
+                                    <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/shutdown" method="POST">
+                                        <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                                        <button class="shutdown" title="Shut down the VM"><i class="fa fa-stop"></i></button>
+                                    </form>
+                                    # restart
+                                {% endif %}
+                            {% elif vm["State"] == "suspended" %}
+                                <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/resume" method="POST">
+                                    <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                                    <button class="play" title="Resume the VM"><i class="fa fa-play"></i></button>
+                                </form>
+                            {% else %}
+                                <p>No actions possible</p>
+                            {% endif %}
+                            <!--<button class="pause"><i class="fa fa-pause" aria-hidden="true"></i></button>-->
+                            {% if vm["State"] == "poweredOn" and vm["guestToolsRunning"] %}
+                                <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/shutdown" method="POST">
+                                    <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                                    <button class="stop" title="Shut down the VM"><i class="fa fa-stop" aria-hidden="true"></i></button>
+                                </form>
+                            {% endif %}
+                            <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/start" method="POST">
+                                <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                                <button class="refresh" title="Reset the VM to the latest snapshot"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                            </form>
+                        </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
      <div class="row">
           <h1>Actions</h1>
           <button class="btn btn-theme btn-outlined" id="change-settings">Change settings<br />+</button>
@@ -84,7 +112,14 @@
 {% block scripts %}
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
+    //If you want to add content dynamically and still need it to work, and also with more than one form, you can do this:
     $(document).ready(function() {
+        $('form').live('submit', function(){
+          $.post($(this).attr('action'), $(this).serialize(), function(response){
+                // do something here on success
+          },'json');
+          return false;
+       });
         // script to refresh VMs dynamically (based on JSON list
         // when using dictionary, don't forget to order
         // ping backend every 5 minutes

@@ -1,5 +1,13 @@
 from CTFd.models import db
 
+class vSphereVMsConfig(db.Model):
+    option = db.Column(db.Text, primary_key=True)
+    value = db.Column(db.Text)
+
+    def __init__(self, option, value):
+        self.option = option
+        self.value = value
+
 # General database tables go in this file
 class challengeVM(db.Model):
     id = db.Column(db.Integer, primary_key=True)

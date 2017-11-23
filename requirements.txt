@@ -1,6 +1,4 @@
-pip
-flask
 pyVmomi >= 6.5
 suds ; python_version < '3'
 suds-jurko ; python_version >= '3.0'
-vapi-client-bindings --extra-index-url='https://github.com/vmware/vsphere-automation-sdk-python/tree/master/lib'
+requests

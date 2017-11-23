@@ -1,297 +1,300 @@
+import os
 from flask import Blueprint, render_template, request, abort, redirect, url_for
 from CTFd.utils import admins_only, is_admin
-from .dns_functions import *
-import os
-import shutil
-import pip
-import importlib
-import json
-import configparser
-import socket
 from CTFd.models import db
-from .models import challengeVM, challengeDNS
 
+import atexit
+import ssl
+
+from pyVim import connect
+from pyVmomi import vmodl
+from pyVmomi import vim
+
+from .models import *
+from .blacklist import vm_blacklist
 
 def load(app):
-    # create plugin blueprint with template folder
-    challengevms = Blueprint('challengeVMs', __name__, template_folder='templates')
-    vplatforms = importlib.import_module('.vplatforms', package='CTFd.plugins.challengevms')
-    print(" * Initialized challengevms virtualization platforms module, %s" % vplatforms)
+    #create tables
+    app.db.create_all()
 
-    # generate list of supported virtualization platforms based on folders in virt_platforms directory
-    supported_platforms_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "vplatforms"))
-    settings_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "settings.ini"))
+    # create plugin blueprint with template folder
+    vspherevms = Blueprint('vspherevms', __name__, template_folder='templates')
+
+    #valid configuration settions with their type
+    valid_settings ={
+        'Username': ['text', ''],
+        'Password': ['password', ''],
+        'Host': ['text', ''],
+        'Port': ['number', '443']
+    }
 
     # Set up route to configuration interface
-    @challengevms.route('/admin/challengeVMs/configure', methods=['GET', 'POST'])
+    @vspherevms.route('/admin/vspherevms/configure', methods=['GET', 'POST'])
     @admins_only
     def configure():
-        # get supported_virt_options root directories (detect modules)
-        supported_virt_options = []
-        blacklist = {'__pycache__'}
+        if request.method == 'POST':
+            settings = {}
+            errors = []
 
-        for (dirpath, dirnames, filenames) in os.walk(supported_platforms_dir):
-            supported_virt_options.extend(dirnames)
-            break
+            for key, val in valid_settings:
+                if key in request.form:
+                    settings[key]=[val[0], request.form[key]]
+                else:
+                    errors.append("%s is not a valid setting" % key)
 
-        # remove blacklist from supported virt_options
-        # You cannot iterate over a list and mutate it at the same time, instead iterate over a slice
-        for supported_virt_option in supported_virt_options[:]:
-            if supported_virt_option in blacklist:
-                supported_virt_options.remove(supported_virt_option)
+            # error handling
+            if len(errors) > 0:
+                return render_template('init_settings.html', errors=errors, settings=settings)
+            else:
+                #write all key-value pairs to database & redirect to manage
+                for key,val in settings:
+                    vspherevmsconfigopt = vSphereVMsConfig.query.filter_by(option=key).first()
 
-        # if settings file does not exist, render initial settings config
-        # else render initial virtualization platform config or management UI
-        if os.path.exists(settings_file):
-            # check if virt_opt is set and valid in settings.ini
-            settings = load_settings()
+                    # if key does not exist in database, add entry, else update
+                    if vspherevmsconfig == None:
+                        vspherevmsconfig = vSphereVMsConfig(key,val[1])
+                        db.session.add(vspherevmsconfig)
+                        db.session.commit()
+                        db.session.flush()
+                    else:
+                        vspherevmsconfig.value = val
+                        db.session.commit()
+                        db.session.flush()
 
-            # if the section.option exists and it's value is valid
-            if ('virtualization platform' in settings.sections()) and (
-                        'name' in settings.options('virtualization platform')) and (
-                        settings.get('virtualization platform', 'name') in supported_virt_options):
-
-                # redirect to management interface
                 return redirect(url_for('.manage'), code=302)
 
-            else:
-                # render template to configure virt_opt & process configuration requests
-                if request.method == 'POST':
-                    # check if virt opt is set
-                    try:
-                        request.form.get("virt_opt")
-                    except NameError:
-                        abort(404)
-
-                    if check_virt_opt(request.form.get("virt_opt")) and (len(request.form) == 2):
-                        # if virt_opt is a supported_virt_opt, return appropriate options
-                        config = load_virt_config_options(request.form.get("virt_opt"))
-                        return convert_config_json_list(config)
-
-                    elif check_virt_opt(request.form.get("virt_opt")) and (len(request.form) > 2):
-                        config = configparser.ConfigParser()
-                        config.read(supported_platforms_dir + '/' + request.form.get("virt_opt") + '/config.ini')
-
-                        for key in request.form:
-                            if key != 'nonce' and key != 'virt_opt':
-                                configopt = key.split('.')
-                                sec = configopt[0]
-                                opt = configopt[1]
-
-                                # if sections.option exists, change its value
-                                if sec in config.sections():
-                                    if opt in config.options(sec):
-                                        config.set(sec, opt, request.form.get(key))
-
-                        with open(supported_platforms_dir + '/' + request.form.get("virt_opt") + '/config.ini',
-                                  'w') as configfile:
-                            config.write(configfile)
-                            configfile.close()
-
-                        # setup the virt_opt module
-                        setup_virt_opt(request.form.get("virt_opt"))
-
-                        # Write config option to settings file
-                        settings = load_settings()
-
-                        if 'virtualization platform' not in settings.sections():
-                            settings.add_section('virtualization platform')
-
-                        settings.set('virtualization platform', 'name', request.form.get("virt_opt"))
-
-                        with open(settings_file, 'w') as settingsfile:
-                            settings.write(settingsfile)
-                            settingsfile.close()
-
-                        # redirect to management interface
-                        return redirect(url_for('.manage'), code=302)
-
-                    else:
-                        return render_template('init_config.html', virt_opts=supported_virt_options)
-
-                else:
-                    return render_template('init_config.html', virt_opts=supported_virt_options)
         else:
-            # render the initial settings template, where user can configure the plugins general settings
-            from .valid_settings import valid_settings
+            # generate dictionary with already filled in config options + empty options
+            settings = config_opts_db()
 
-            # if page sends post, set the settings
-            if request.method == 'POST':
-                settings = configparser.ConfigParser()
+            return render_template('init_settings.html', settings=settings)
 
-                # validate the settings & write to file
-                for key in request.form:
-                    if key != 'nonce':
-                        configopt = key.split('.')
-                        sec = configopt[0]
-                        opt = configopt[1]
+    # generate dictionary with already filled in config options + empty options
+    def config_opts_db():
+        settings = {}
 
-                        # if sections.option exists, change its value
-                        for section in valid_settings:
-                            for k, v in section.items():
-                                if k not in settings.sections():
-                                    settings.add_section(k)
-                                if k == sec:
-                                    for option in v:
-                                        for akey, avalue in option.items():
-                                            if akey == opt:
-                                                settings.set(sec, opt, request.form.get(key))
+        for key, val in valid_settings:
+            vspherevmsconfigopt = vSphereVMsConfig.query.filter_by(option=key).first()
 
-                with open(settings_file, 'w') as settingsfile:
-                    settings.write(settingsfile)
-                    settingsfile.close()
-
-                return render_template('init_config.html', virt_opts=supported_virt_options)
-
-            return render_template('init_settings.html', valid_settings=valid_settings)
-
-    # Set up route to management interface
-    @challengevms.route('/admin/challengeVMs/manage', methods=['GET', 'POST'])
-    @admins_only
-    # function triggered by surfing to the route as admin
-    def manage():
-        if os.path.exists(settings_file):
-            # check if virt_opt is set and valid in settings.ini
-            settings = load_settings()
-
-            #package = load_virt_opt_package(request.form.get("virt_opt"))
-            #package.run.run()
-
-            # validate virt opt
-            if not check_virt_opt(settings['virtualization platform']['name']):
-                return redirect(url_for('.configure'), code=302)
+            if vspherevmsconfigopt == None:
+                settings[key] = [val[0], val[1]]
             else:
-                # load module
-                package = load_virt_opt_package(settings['virtualization platform']['name'])
-
-            # if POST new VM -> render template to create new VM
-
-
-            # generate VM array from database
-
-            return render_template('manage.html')
-        else:
-            return redirect(url_for('.configure'), code=302)
-
-    # Set up routes to create new VM
-    @challengevms.route('/admin/challengeVMs/manage/newVM', methods=['POST'])
-    @admins_only
-    # function triggered by surfing to the route as admin
-    def new_vm():
-        # load settings
-        settings = load_settings()
-
-        # load virt_opt module
-        package = load_virt_opt_package(settings["virtualization platform"]["name"])
-
-        # fetch list of available templates
-        templates = package.run.fetch_template_list()
-
-        return render_template('new_VM.html', templates=templates)
-
-    # Set up routes to VM calls
-    @challengevms.route('/admin/challengeVMs/manage/VM/<int:vm_id>/update', methods=['POST'])
-    @admins_only
-    def update_vm(settings, vm_id):
-        # check if settings file exists
-        # if settings != '':
-
-        # else:
-        abort(404)
-
-    # Set up routes to VM calls
-    @challengevms.route('/admin/challengeVMs/manage/VM/<int:vm_id>/reset', methods=['POST'])
-    @admins_only
-    def reset_vm(vm_id):
-        exit()
-
-    # Set up routes to VM calls
-    @challengevms.route('/admin/challengeVMs/manage/VM/<int:vm_id>/destroy', methods=['POST'])
-    @admins_only
-    def destroy_vm(vm_id):
-        exit()
-
-    def load_settings():
-        settings = configparser.ConfigParser()
-        settings.read(settings_file)
+                settings[key] = [val[0], vspherevmsconfigopt.value]
 
         return settings
 
-    def load_virt_config_options(virt_opt):
-        config = configparser.ConfigParser()
-        config.read(supported_platforms_dir + '/' + virt_opt + '/config.ini')
-
-        return config
-
-    def load_virt_opt_package(virt_opt):
-        # prepare relative import
-        virt_opt_rel = "." + virt_opt
-
-        # import module
-        return importlib.import_module(virt_opt_rel, package='CTFd.plugins.challengevms.vplatforms')
-
-    def convert_config_json_list(config):
-        config_array = []
-        option_array = []
-
-        # append config options to array
-        for section in config.sections():
-            config_array.append(section)
-
-            for option in config.options(section):
-                option_array.append([option, config[section][option]])
-
-            config_array.append(option_array)
-            option_array = []
-
-        return json.dumps(config_array)
-
-    def setup_virt_opt(virt_opt):
-        package = load_virt_opt_package(virt_opt)
-
-        # import setup script function
-        importlib.import_module('.setup', package='CTFd.plugins.challengevms.vplatforms.' + virt_opt)
-
-        # run setup script
-        package.setup.setup()
-
-    def check_virt_opt(virt_opt):
-        # get supported_virt_options root directories (detect modules)
-        supported_virt_options = []
-        blacklist = {'__pycache__'}
-
-        for (dirpath, dirnames, filenames) in os.walk(supported_platforms_dir):
-            supported_virt_options.extend(dirnames)
-            break
-
-        # remove blacklist from supported virt_options
-        # You cannot iterate over a list and mutate it at the same time, instead iterate over a slice
-        for supported_virt_option in supported_virt_options[:]:
-            if supported_virt_option in blacklist:
-                supported_virt_options.remove(supported_virt_option)
-
-        if virt_opt in supported_virt_options:
-            return True
+    # Set up route to management interface
+    @vspherevms.route('/admin/vspherevms/manage', methods=['GET'])
+    @admins_only
+    def manage():
+        if not is_configured():
+            return redirect(url_for('.configure'), code=302)
         else:
-            return False
+            errors = []
+            #if connection failed, return error
 
-    #def validate_ip(addr):
-        #try:
-            #socket.inet_aton(addr)
-            # legal
-        #except socket.error:
-            # Not legal
+            try:
+                vms = fetch_vm_list_online_offline()
+            except:
+                errors.append("VM list could not be fetched. Is the configuration valid?")
 
-    # config page (DNS, subnets, template datastore...)
-    # DNS SETTINGS
-    # IP
-    # SUBNET
-    # network settings
-    challengeVM = challengeVM(name=name, dns_id=None)
-    db.session.add(challengeVM)
-    db.session.commit()
-    db.session.close()
-    # add_record
-    # remove_record
+            if len(errors) > 0:
+                return render_template('manage.html', errors=errors, virtual_machines=vms)
 
-    app.register_blueprint(challengevms)
+            return render_template('manage.html', virtual_machines=vms)
+
+    # plugin is not configured when one key has no value
+    def is_configured():
+        configured = True
+
+        for key, val in valid_settings:
+            vspherevmsconfigopt = vSphereVMsConfig.query.filter_by(option=key).first()
+            if vspherevmsconfigopt == None:
+                configured = False
+
+        return configured
+
+    def fetch_vm_list():
+        vspherevmsconfigusername = vSphereVMsConfig.query.filter_by(option="Username").first()
+        vspherevmsconfigpassword = vSphereVMsConfig.query.filter_by(option="Password").first()
+        vspherevmsconfighost = vSphereVMsConfig.query.filter_by(option="Host").first()
+        vspherevmsconfigport = vSphereVMsConfig.query.filter_by(option="Port").first()
+
+        username = vspherevmsconfigusername.value
+        password = vspherevmsconfigpassword.value
+        host = vspherevmsconfighost.value
+        port = vspherevmsconfigport.value
+
+        print("Attempting connection to vCenter...")
+
+        try:
+            context = ssl._create_unverified_context()
+            service_instance = connect.SmartConnect(host=host,
+                                                         user=username,
+                                                         pwd=password,
+                                                         port=int(port),
+                                                         sslContext=context)
+
+            atexit.register(connect.Disconnect, service_instance)
+        except (IOError, vim.fault.InvalidLogin):
+            print("SmartConnect to vCenter failed.")
+
+        content = service_instance.RetrieveContent()
+
+        container = content.rootFolder  # starting point to look into
+        viewType = [vim.VirtualMachine]  # object types to look for
+        recursive = True  # whether we should look into it recursively
+
+        containerView = content.viewManager.CreateContainerView(
+            container, viewType, recursive)
+
+        virtual_machines = containerView.view
+
+        return virtual_machines
+
+
+    # function to update VM on/off status
+    # less data to lower network load
+    def fetch_vm_list_online_offline():
+        virtual_machines = fetch_vm_list()
+
+        vms = []
+
+        for virtual_machine in virtual_machines:
+            summary = virtual_machine.summary
+
+            name = summary.config.name
+            template = summary.config.template
+
+            # if vm is template, exclude
+            if template:
+                continue
+
+            for blacklisted_vm in vm_blacklist:
+                if name == blacklisted_vm['Name']:
+                    continue
+
+            instance_uuid = summary.config.instanceUuid
+            state = summary.runtime.powerState
+
+            if summary.guest is not None:
+                if summary.guest.ipAddress:
+                    ipaddress = summary.guest.ipAddress
+                else:
+                    ipaddress = "Unknown"
+
+                if summary.guest.toolsRunningStatus is not None:
+                    vmwaretools = summary.guest.toolsRunningStatus
+                else:
+                    vmwaretools = "guestToolsNotRunning"
+            else:
+                ipaddress = "Unknown"
+                vmwaretools = "guestToolsNotRunning"
+
+            # append VM to array
+            vms.append({
+                "Name": name,
+                "UUID": instance_uuid,
+                "State": state, #powereedOff, poweredOn, ??StandBy, ??unknown, suspended
+                "Ipaddress": ipaddress,
+                "Vmwaretools": vmwaretools
+            })
+
+        return vms
+
+
+    # revert vm to latest snapshot (see snapshot_operations)
+    @challengevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/revert', methods=['POST'])
+    @admins_only
+    def revert_vm(vm_uuid):
+        #Check if not in blacklist
+
+    @challengevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/start', methods=['POST'])
+    @admins_only
+    def start_vm(vm_uuid):
+        # Check if not in blacklist
+
+
+    @challengevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/restart', methods=['POST'])
+    @admins_only
+    def restart_vm(vm_uuid):
+        if not si:
+            raise SystemExit("Unable to connect to host with supplied info.")
+        vm = si.content.searchIndex.FindByUuid(None, args.uuid, True, True)
+        if not vm:
+            raise SystemExit("Unable to locate VirtualMachine.")
+
+        print("Found: {0}".format(vm.name))
+        print("The current powerState is: {0}".format(vm.runtime.powerState))
+        # This does not guarantee a reboot.
+        # It issues a command to the guest
+        # operating system asking it to perform a reboot.
+        # Returns immediately and does not wait for the guest
+        # operating system to complete the operation.
+        vm.RebootGuest()
+        print("A request to reboot the guest has been sent.")
+
+
+        # Check if not in blacklist
+        VM = SI.content.searchIndex.FindByUuid(None, ARGS.uuid,
+                                               True,
+                                               True)
+        if VM is None:
+            raise SystemExit("Unable to locate VirtualMachine.")
+
+        print("Found: {0}".format(VM.name))
+        print("The current powerState is: {0}".format(VM.runtime.powerState))
+        TASK = VM.ResetVM_Task()
+        tasks.wait_for_tasks(SI, [TASK])
+        print("its done.")
+
+    @challengevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/shutdown', methods=['POST'])
+    @admins_only
+    def shutdown_vm(vm_uuid):
+        # Check if not in blacklist
+
+    VM = SI.content.searchIndex.FindByUuid(None, uuid,
+                                               True,
+                                               False)
+    if VM is None:
+        raise SystemExit(
+            "Unable to locate VirtualMachine. Arguments given: "
+            "vm - {0} , uuid - {1} , name - {2} , ip - {3}"
+                .format(ARGS.vm, ARGS.uuid, ARGS.name, ARGS.ip)
+        )
+
+    print("Found: {0}".format(VM.name))
+    print("The current powerState is: {0}".format(VM.runtime.powerState))
+    if format(VM.runtime.powerState) == "poweredOn":
+        print("Attempting to power off {0}".format(VM.name))
+        TASK = VM.PowerOffVM_Task()
+        tasks.wait_for_tasks(SI, [TASK])
+        print("{0}".format(TASK.info.state))
+
+    print("Destroying VM from vSphere.")
+    TASK = VM.Destroy_Task()
+    tasks.wait_for_tasks(SI, [TASK])
+    print("Done.")
+
+
+import ssl
+si = None
+
+    print("Trying to connect to VCENTER SERVER . . .")
+
+    context = None
+    if inputs['ignore_ssl'] and hasattr(ssl, "_create_unverified_context"):
+        context = ssl._create_unverified_context()
+
+    si = connect.Connect(inputs['vcenter_ip'], 443,
+                         inputs['vcenter_user'], inputs[
+                             'vcenter_password'],
+                         sslContext=context)
+
+    atexit.register(Disconnect, si)
+
+    print("Connected to VCENTER SERVER !")
+
+
+
+
