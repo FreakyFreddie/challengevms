@@ -92,11 +92,10 @@ def load(app):
         else:
             errors = []
             #if connection failed, return error
-
             try:
                 vms = fetch_vm_list_online_offline()
-            except:
-                errors.append("VM list could not be fetched. Is the configuration valid?")
+            except (IOError, vim.fault.InvalidLogin):
+                errors.append("SmartConnect to vCenter failed.")
 
             if len(errors) > 0:
                 return render_template('manage.html', errors=errors, virtual_machines=vms)
@@ -127,17 +126,14 @@ def load(app):
 
         print("Attempting connection to vCenter...")
 
-        try:
-            context = ssl._create_unverified_context()
-            service_instance = connect.SmartConnect(host=host,
-                                                         user=username,
-                                                         pwd=password,
-                                                         port=int(port),
-                                                         sslContext=context)
+        context = ssl._create_unverified_context()
+        service_instance = connect.SmartConnect(host=host,
+                                                 user=username,
+                                                 pwd=password,
+                                                 port=int(port),
+                                                 sslContext=context)
 
-            atexit.register(connect.Disconnect, service_instance)
-        except (IOError, vim.fault.InvalidLogin):
-            print("SmartConnect to vCenter failed.")
+        atexit.register(connect.Disconnect, service_instance)
 
         content = service_instance.RetrieveContent()
 
