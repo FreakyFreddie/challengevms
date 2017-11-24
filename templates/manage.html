@@ -62,7 +62,7 @@
                     </ul>
                     <div class="vm-operations">
                         {% if vm["State"] == "poweredOff" %}
-                            <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/start" method="POST">
+                            <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/poweron" method="POST">
                                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                                 <button class="play" title="Start the VM"><i class="fa fa-play"></i></button>
                             </form>
@@ -124,7 +124,7 @@
                     var html = '';
 
                     // if response is empty, print ok, else print error
-                    if (!$.trim(response)) {
+                    if (response == "Success!") {
                         html = '<div class="alert alert-success alert-dismissable" role="alert">\n' +
                             '<span class="sr-only">Success:</span>\n' +
                             'The operation has been successfully completed.' +
@@ -133,8 +133,8 @@
                             '</div>';
                     }
                     else{
-                        html = '<div class="alert alert-success alert-dismissable" role="alert">\n' +
-                            '<span class="sr-only">Success:</span>\n' +
+                        html = '<div class="alert alert-danger alert-dismissable" role="alert">\n' +
+                            '<span class="sr-only">Error:</span>\n' +
                             response +
                             '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                             '<span aria-hidden="true">×</span></button>\n' +
@@ -156,7 +156,7 @@
         function refresh_vms(){
             $request = $.ajax({
                 method:"POST",
-                url:"{{ request.script_root }}/admin/vspherevms/refresh?r=" + new Date().getTime(),
+                url:"{{ request.script_root }}/admin/vspherevms/manage/update?r=" + new Date().getTime(),
                 data: {nonce: "{{ nonce }}"}
             });
 
@@ -253,7 +253,7 @@
                     script_root +
                     '/admin/vspherevms/' +
                     vm["UUID"] +
-                    '/start" method="POST">\n' +
+                    '/poweron" method="POST">\n' +
                     '<input id="nonce" value="' +
                     nonce +
                     '" name="nonce" type="hidden" />\n' +
@@ -315,6 +315,8 @@
 
             $(selector).append(html);
         }
+
+        //NEWLY CREATED BUTTONS ALSO NEED TO BE CLICKABLE
     </script>
 {% endblock %}
 

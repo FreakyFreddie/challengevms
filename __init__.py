@@ -5,6 +5,7 @@ from CTFd.models import db
 
 import atexit
 import ssl
+import json
 
 from pyVim import connect
 from pyVmomi import vmodl
@@ -91,6 +92,8 @@ def load(app):
             return redirect(url_for('.configure'), code=302)
         else:
             errors = []
+            vms = []
+
             #if connection failed, return error
             try:
                 vms = fetch_vm_list_online_offline()
@@ -113,7 +116,7 @@ def load(app):
 
         return configured
 
-    def fetch_vm_list():
+    def connect_to_vsphere():
         vspherevmsconfigusername = vSphereVMsConfig.query.filter_by(option="Username").first()
         vspherevmsconfigpassword = vSphereVMsConfig.query.filter_by(option="Password").first()
         vspherevmsconfighost = vSphereVMsConfig.query.filter_by(option="Host").first()
@@ -128,13 +131,16 @@ def load(app):
 
         context = ssl._create_unverified_context()
         service_instance = connect.SmartConnect(host=host,
-                                                 user=username,
-                                                 pwd=password,
-                                                 port=int(port),
-                                                 sslContext=context)
+                                                user=username,
+                                                pwd=password,
+                                                port=int(port),
+                                                sslContext=context)
 
         atexit.register(connect.Disconnect, service_instance)
 
+        return service_instance
+
+    def fetch_vm_list(service_instance):
         content = service_instance.RetrieveContent()
 
         container = content.rootFolder  # starting point to look into
@@ -145,6 +151,7 @@ def load(app):
             container, viewType, recursive)
 
         virtual_machines = containerView.view
+        containerView.Destroy()
 
         return virtual_machines
 
@@ -152,7 +159,7 @@ def load(app):
     # function to update VM on/off status
     # less data to lower network load
     def fetch_vm_list_online_offline():
-        virtual_machines = fetch_vm_list()
+        virtual_machines = fetch_vm_list(connect_to_vsphere())
 
         vms = []
 
@@ -161,14 +168,18 @@ def load(app):
 
             name = summary.config.name
             template = summary.config.template
+            blacklisted = False
 
             # if vm is template, exclude
             if template:
                 continue
 
+            # if vm is blacklisted, skip this iteration
             for blacklisted_vm in vm_blacklist:
                 if name == blacklisted_vm['Name']:
-                    continue
+                    blacklisted = True
+            if blacklisted:
+                continue
 
             instance_uuid = summary.config.instanceUuid
             state = summary.runtime.powerState
@@ -198,22 +209,131 @@ def load(app):
 
         return vms
 
-
-    # revert vm to latest snapshot (see snapshot_operations)
-    @challengevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/revert', methods=['POST'])
+    @vspherevms.route('/admin/vspherevms/manage/update', methods=['POST'])
     @admins_only
-    def revert_vm(vm_uuid):
-        #Check if not in blacklist
+    def update():
+        return json.dumps(fetch_vm_list_online_offline())
+    # Check if not in blacklist (after connecting to ...)
 
-    @challengevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/start', methods=['POST'])
+    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/poweron', methods=['POST'])
     @admins_only
-    def start_vm(vm_uuid):
-        # Check if not in blacklist
+    def poweron_vm(vm_uuid):
+        service_instance = connect_to_vsphere()
+        virtual_machines = fetch_vm_list(service_instance)
+
+        for vm in virtual_machines:
+            blacklisted = False
+            for blacklisted_vm in vm_blacklist:
+                if vm.summary.config.name == blacklisted_vm['Name']:
+                    blacklisted = True
+            if blacklisted:
+                continue
+
+            # only call powerOn on vm that is off and matches uuid
+            if vm.summary.config.instanceUuid == vm_uuid and vm.summary.runtime.powerState == "poweredOff":
+                try:
+                    tasks = []
+                    tasks.append(vm.PowerOn())
+
+                    # Wait for power on to complete
+                    try:
+                        WaitForTask(tasks, service_instance)
+                        return "Success!"
+
+                    except:
+                        return "Operation failed."
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+    def fetch_vm_by_uuid(service_instance):
 
 
-    @challengevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/restart', methods=['POST'])
+    # returns when tasklist is finished
+    def WaitForTask(tasks, service_instance):
+        pc = service_instance.content.propertyCollector
+
+        taskList = [str(task) for task in tasks]
+
+        # Create filter
+        objSpecs = [vmodl.query.PropertyCollector.ObjectSpec(obj=task)
+                    for task in tasks]
+        propSpec = vmodl.query.PropertyCollector.PropertySpec(type=vim.Task,
+                                                              pathSet=[], all=True)
+        filterSpec = vmodl.query.PropertyCollector.FilterSpec()
+        filterSpec.objectSet = objSpecs
+        filterSpec.propSet = [propSpec]
+        filter = pc.CreateFilter(filterSpec, True)
+
+        try:
+            version, state = None, None
+
+            # Loop looking for updates till the state moves to a completed state.
+            while len(taskList):
+                update = pc.WaitForUpdates(version)
+                for filterSet in update.filterSet:
+                    for objSet in filterSet.objectSet:
+                        task = objSet.obj
+                        for change in objSet.changeSet:
+                            if change.name == 'info':
+                                state = change.val.state
+                            elif change.name == 'info.state':
+                                state = change.val
+                            else:
+                                continue
+
+                            if not str(task) in taskList:
+                                continue
+
+                            if state == vim.TaskInfo.State.success:
+                                # Remove task from taskList
+                                taskList.remove(str(task))
+                            elif state == vim.TaskInfo.State.error:
+                                raise task.info.error
+                # Move to next version
+                version = update.version
+        finally:
+            if filter:
+                filter.Destroy()
+
+
+    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/restart', methods=['POST'])
     @admins_only
     def restart_vm(vm_uuid):
+        service_instance = connect_to_vsphere()
+        try:
+            SI = connect.SmartConnect(host=ARGS.host,
+                                      user=ARGS.user,
+                                      pwd=ARGS.password,
+                                      port=ARGS.port)
+            atexit.register(connect.Disconnect, SI)
+        except IOError as ex:
+            pass
+
+        if not SI:
+            raise SystemExit("Unable to connect to host with supplied info.")
+        VM = None
+        if ARGS.uuid:
+            VM = SI.content.searchIndex.FindByUuid(None, ARGS.uuid,
+                                                   True,
+                                                   True)
+        elif ARGS.name:
+            VM = SI.content.searchIndex.FindByDnsName(None, ARGS.name,
+                                                      True)
+        elif ARGS.ip:
+            VM = SI.content.searchIndex.FindByIp(None, ARGS.ip, True)
+
+        if VM is None:
+            raise SystemExit("Unable to locate VirtualMachine.")
+
+        print("Found: {0}".format(VM.name))
+        print("The current powerState is: {0}".format(VM.runtime.powerState))
+        TASK = VM.ResetVM_Task()
+        tasks.wait_for_tasks(SI, [TASK])
+        print("its done.")
+
         if not si:
             raise SystemExit("Unable to connect to host with supplied info.")
         vm = si.content.searchIndex.FindByUuid(None, args.uuid, True, True)
@@ -236,7 +356,7 @@ def load(app):
                                                True,
                                                True)
         if VM is None:
-            raise SystemExit("Unable to locate VirtualMachine.")
+            raise "Unable to locate VirtualMachine."
 
         print("Found: {0}".format(VM.name))
         print("The current powerState is: {0}".format(VM.runtime.powerState))
