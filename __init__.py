@@ -143,12 +143,9 @@ def load(app):
     def fetch_vm_list(service_instance):
         content = service_instance.RetrieveContent()
 
-        container = content.rootFolder  # starting point to look into
-        viewType = [vim.VirtualMachine]  # object types to look for
-        recursive = True  # whether we should look into it recursively
-
+        # search recursively from root folder and return all found VirtualMachine objects
         containerView = content.viewManager.CreateContainerView(
-            container, viewType, recursive)
+            content.rootFolder, [vim.VirtualMachine], True)
 
         virtual_machines = containerView.view
         containerView.Destroy()
@@ -218,41 +215,20 @@ def load(app):
     @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/poweron', methods=['POST'])
     @admins_only
     def poweron_vm(vm_uuid):
-        service_instance = connect_to_vsphere()
-        virtual_machines = fetch_vm_list(service_instance)
+        return powerstate_operation(vm_uuid, "powerOn")
 
-        for vm in virtual_machines:
-            blacklisted = False
-            for blacklisted_vm in vm_blacklist:
-                if vm.summary.config.name == blacklisted_vm['Name']:
-                    blacklisted = True
-            if blacklisted:
-                continue
-
-            # only call powerOn on vm that is off and matches uuid
-            if vm.summary.config.instanceUuid == vm_uuid and vm.summary.runtime.powerState == "poweredOff":
-                try:
-                    tasks = []
-                    tasks.append(vm.PowerOn())
-
-                    # Wait for power on to complete
-                    try:
-                        WaitForTask(tasks, service_instance)
-                        return "Success!"
-
-                    except:
-                        return "Operation failed."
-
-                except vmodl.MethodFault as e:
-                    return "Caught vmodl fault : " + e.msg
-                except Exception as e:
-                    return "Caught Exception : " + str(e)
-
-    def fetch_vm_by_uuid(service_instance):
+    def fetch_vm_by_uuid(vm_uuid, service_instance):
+        try:
+            vm = service_instance.content.searchIndex.FindByUuid(None, vm_uuid,
+                                                   True,
+                                                   True)
+            return vm
+        except:
+            raise # "Unable to locate VirtualMachine."
 
 
     # returns when tasklist is finished
-    def WaitForTask(tasks, service_instance):
+    def WaitForTasks(tasks, service_instance):
         pc = service_instance.content.propertyCollector
 
         taskList = [str(task) for task in tasks]
@@ -299,118 +275,112 @@ def load(app):
                 filter.Destroy()
 
 
+    def powerstate_operation(vm_uuid, operation):
+        service_instance = connect_to_vsphere()
+        vm = fetch_vm_by_uuid(vm_uuid, service_instance)
+
+        for blacklisted_vm in vm_blacklist:
+            if vm.summary.config.name == blacklisted_vm['Name']:
+                return "Operation failed."
+
+
+        # only call powerOn on vm that is off and matches uuid
+        if(vm.summary.runtime.powerState == "poweredOff"):
+            # only call powerOn on vm that is off and matches uuid
+            if (operation == "powerOn"):
+                try:
+                    tasks = []
+                    tasks.append(vm.PowerOnVM())
+
+                    # Wait for power on to complete
+                    WaitForTasks(tasks, service_instance)
+                    return "Success!"
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+
+        elif(vm.summary.runtime.powerState == "poweredOn"):
+            if (operation == "Suspend"):
+                try:
+                    tasks = []
+                    tasks.append(vm.SuspendVM())
+
+                    # Wait for power on to complete
+                    WaitForTasks(tasks, service_instance)
+                    return "Success!"
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+            elif (operation == "Shutdown"):
+                try:
+                    tasks = []
+                    tasks.append(vm.ShutdownGuest())
+
+                    # Wait for power on to complete
+                    WaitForTasks(tasks, service_instance)
+                    return "Success!"
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+            elif (operation == "Reboot"):
+                try:
+                    tasks = []
+                    tasks.append(vm.RebootGuest())
+
+                    # Wait for power on to complete
+                    WaitForTasks(tasks, service_instance)
+                    return "Success!"
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+        elif(vm.summary.runtime.powerState == "suspended"):
+            if (operation == "Resume"):
+                try:
+                    tasks = []
+                    tasks.append(vm.PowerOnVM())
+
+                    # Wait for power on to complete
+                    WaitForTasks(tasks, service_instance)
+                    return "Success!"
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+        else:
+            return "requirements not met."
+
+    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/shutdown', methods=['POST'])
+    @admins_only
+    def suspend_vm(vm_uuid):
+        return powerstate_operation(vm_uuid, "Suspend")
+
+    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/shutdown', methods=['POST'])
+    @admins_only
+    def shutdown_vm(vm_uuid):
+        return powerstate_operation(vm_uuid, "Shutdown")
+
     @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/restart', methods=['POST'])
     @admins_only
     def restart_vm(vm_uuid):
-        service_instance = connect_to_vsphere()
-        try:
-            SI = connect.SmartConnect(host=ARGS.host,
-                                      user=ARGS.user,
-                                      pwd=ARGS.password,
-                                      port=ARGS.port)
-            atexit.register(connect.Disconnect, SI)
-        except IOError as ex:
-            pass
+        return powerstate_operation(vm_uuid, "Reboot")
 
-        if not SI:
-            raise SystemExit("Unable to connect to host with supplied info.")
-        VM = None
-        if ARGS.uuid:
-            VM = SI.content.searchIndex.FindByUuid(None, ARGS.uuid,
-                                                   True,
-                                                   True)
-        elif ARGS.name:
-            VM = SI.content.searchIndex.FindByDnsName(None, ARGS.name,
-                                                      True)
-        elif ARGS.ip:
-            VM = SI.content.searchIndex.FindByIp(None, ARGS.ip, True)
-
-        if VM is None:
-            raise SystemExit("Unable to locate VirtualMachine.")
-
-        print("Found: {0}".format(VM.name))
-        print("The current powerState is: {0}".format(VM.runtime.powerState))
-        TASK = VM.ResetVM_Task()
-        tasks.wait_for_tasks(SI, [TASK])
-        print("its done.")
-
-        if not si:
-            raise SystemExit("Unable to connect to host with supplied info.")
-        vm = si.content.searchIndex.FindByUuid(None, args.uuid, True, True)
-        if not vm:
-            raise SystemExit("Unable to locate VirtualMachine.")
-
-        print("Found: {0}".format(vm.name))
-        print("The current powerState is: {0}".format(vm.runtime.powerState))
-        # This does not guarantee a reboot.
-        # It issues a command to the guest
-        # operating system asking it to perform a reboot.
-        # Returns immediately and does not wait for the guest
-        # operating system to complete the operation.
-        vm.RebootGuest()
-        print("A request to reboot the guest has been sent.")
-
-
-        # Check if not in blacklist
-        VM = SI.content.searchIndex.FindByUuid(None, ARGS.uuid,
-                                               True,
-                                               True)
-        if VM is None:
-            raise "Unable to locate VirtualMachine."
-
-        print("Found: {0}".format(VM.name))
-        print("The current powerState is: {0}".format(VM.runtime.powerState))
-        TASK = VM.ResetVM_Task()
-        tasks.wait_for_tasks(SI, [TASK])
-        print("its done.")
-
-    @challengevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/shutdown', methods=['POST'])
+    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/resume', methods=['POST'])
     @admins_only
-    def shutdown_vm(vm_uuid):
-        # Check if not in blacklist
-
-    VM = SI.content.searchIndex.FindByUuid(None, uuid,
-                                               True,
-                                               False)
-    if VM is None:
-        raise SystemExit(
-            "Unable to locate VirtualMachine. Arguments given: "
-            "vm - {0} , uuid - {1} , name - {2} , ip - {3}"
-                .format(ARGS.vm, ARGS.uuid, ARGS.name, ARGS.ip)
-        )
-
-    print("Found: {0}".format(VM.name))
-    print("The current powerState is: {0}".format(VM.runtime.powerState))
-    if format(VM.runtime.powerState) == "poweredOn":
-        print("Attempting to power off {0}".format(VM.name))
-        TASK = VM.PowerOffVM_Task()
-        tasks.wait_for_tasks(SI, [TASK])
-        print("{0}".format(TASK.info.state))
-
-    print("Destroying VM from vSphere.")
-    TASK = VM.Destroy_Task()
-    tasks.wait_for_tasks(SI, [TASK])
-    print("Done.")
-
-
-import ssl
-si = None
-
-    print("Trying to connect to VCENTER SERVER . . .")
-
-    context = None
-    if inputs['ignore_ssl'] and hasattr(ssl, "_create_unverified_context"):
-        context = ssl._create_unverified_context()
-
-    si = connect.Connect(inputs['vcenter_ip'], 443,
-                         inputs['vcenter_user'], inputs[
-                             'vcenter_password'],
-                         sslContext=context)
-
-    atexit.register(Disconnect, si)
-
-    print("Connected to VCENTER SERVER !")
-
-
+    def resume_vm(vm_uuid):
+        return powerstate_operation(vm_uuid, "Resume")
 
 

@@ -78,7 +78,7 @@
                                     <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                                     <button class="shutdown" title="Shut down the VM"><i class="fa fa-stop"></i></button>
                                 </form>
-                                <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/restart" method="POST">
+                                <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/reboot" method="POST">
                                     <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                                     <button class="restart" title="Restart the VM"><i class="fa fa-refresh"></i></button>
                                 </form>
