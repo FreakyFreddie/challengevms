@@ -15,15 +15,12 @@ from .models import *
 from .blacklist import vm_blacklist
 
 def load(app):
-    print("test")
     #create tables
     app.db.create_all()
-    print("test")
 
     # create plugin blueprint with template folder
     vspherevms = Blueprint('vspherevms', __name__, template_folder='templates')
 
-    print("test")
     #valid configuration settions with their type
     valid_settings ={
         'Username': ['text', ''],
@@ -32,7 +29,6 @@ def load(app):
         'Port': ['number', '443']
     }
 
-    print("test")
     # Set up route to configuration interface
     @vspherevms.route('/admin/vspherevms/configure', methods=['GET', 'POST'])
     @admins_only
@@ -88,6 +84,7 @@ def load(app):
 
         return settings
 
+
     # Set up route to management interface
     @vspherevms.route('/admin/vspherevms/manage', methods=['GET'])
     @admins_only
@@ -108,6 +105,49 @@ def load(app):
                 return render_template('manage.html', errors=errors, virtual_machines=vms)
 
             return render_template('manage.html', virtual_machines=vms)
+
+    @vspherevms.route('/admin/vspherevms/manage/update', methods=['POST'])
+    @admins_only
+    def update():
+        return json.dumps(fetch_vm_list_online_offline())
+    # Check if not in blacklist (after connecting to ...)
+
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/poweron', methods=['POST'])
+    @admins_only
+    def poweron_vm(vm_uuid):
+        return powerstate_operation(vm_uuid, "powerOn")
+
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/shutdown', methods=['POST'])
+    @admins_only
+    def suspend_vm(vm_uuid):
+        return powerstate_operation(vm_uuid, "Suspend")
+
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/shutdown', methods=['POST'])
+    @admins_only
+    def shutdown_vm(vm_uuid):
+        return powerstate_operation(vm_uuid, "Shutdown")
+
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/restart', methods=['POST'])
+    @admins_only
+    def restart_vm(vm_uuid):
+        return powerstate_operation(vm_uuid, "Reboot")
+
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/resume', methods=['POST'])
+    @admins_only
+    def resume_vm(vm_uuid):
+        return powerstate_operation(vm_uuid, "Resume")
+
+
+
+    def fetch_vm_by_uuid(vm_uuid, service_instance):
+        try:
+            vm = service_instance.content.searchIndex.FindByUuid(None, vm_uuid,
+                                                   True,
+                                                   True)
+            return vm
+        except:
+            raise # "Unable to locate VirtualMachine."
+
 
     # plugin is not configured when one key has no value
     def is_configured():
@@ -143,6 +183,7 @@ def load(app):
         atexit.register(connect.Disconnect, service_instance)
 
         return service_instance
+
 
     def fetch_vm_list(service_instance):
         content = service_instance.RetrieveContent()
@@ -203,32 +244,12 @@ def load(app):
             vms.append({
                 "Name": name,
                 "UUID": instance_uuid,
-                "State": state, #powereedOff, poweredOn, ??StandBy, ??unknown, suspended
+                "State": state,  # powereedOff, poweredOn, ??StandBy, ??unknown, suspended
                 "Ipaddress": ipaddress,
                 "Vmwaretools": vmwaretools
             })
 
         return vms
-
-    @vspherevms.route('/admin/vspherevms/manage/update', methods=['POST'])
-    @admins_only
-    def update():
-        return json.dumps(fetch_vm_list_online_offline())
-    # Check if not in blacklist (after connecting to ...)
-
-    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/poweron', methods=['POST'])
-    @admins_only
-    def poweron_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "powerOn")
-
-    def fetch_vm_by_uuid(vm_uuid, service_instance):
-        try:
-            vm = service_instance.content.searchIndex.FindByUuid(None, vm_uuid,
-                                                   True,
-                                                   True)
-            return vm
-        except:
-            raise # "Unable to locate VirtualMachine."
 
 
     # returns when tasklist is finished
@@ -366,25 +387,5 @@ def load(app):
 
         else:
             return "requirements not met."
-
-    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/shutdown', methods=['POST'])
-    @admins_only
-    def suspend_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "Suspend")
-
-    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/shutdown', methods=['POST'])
-    @admins_only
-    def shutdown_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "Shutdown")
-
-    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/restart', methods=['POST'])
-    @admins_only
-    def restart_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "Reboot")
-
-    @vspherevms.route('/admin/challengeVMs/manage/VM/<string:vm_uuid>/resume', methods=['POST'])
-    @admins_only
-    def resume_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "Resume")
-
-
+        
+    app.register_blueprint(vspherevms)
