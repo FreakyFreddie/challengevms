@@ -1,1 +1,2 @@
-# CTFd-challenge-VMs-plugin
+# vspherevms plugin for CTFd
+
