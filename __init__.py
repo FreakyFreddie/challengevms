@@ -15,12 +15,15 @@ from .models import *
 from .blacklist import vm_blacklist
 
 def load(app):
+    print("test")
     #create tables
     app.db.create_all()
+    print("test")
 
     # create plugin blueprint with template folder
     vspherevms = Blueprint('vspherevms', __name__, template_folder='templates')
 
+    print("test")
     #valid configuration settions with their type
     valid_settings ={
         'Username': ['text', ''],
@@ -29,6 +32,7 @@ def load(app):
         'Port': ['number', '443']
     }
 
+    print("test")
     # Set up route to configuration interface
     @vspherevms.route('/admin/vspherevms/configure', methods=['GET', 'POST'])
     @admins_only
