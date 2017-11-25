@@ -18,10 +18,10 @@
             <form action="{{ request.script_root }}/admin/vspherevms/configure" method="POST">
                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                 <fieldset>
-                    {% for key, value in settings %}
+                    {% for key in settings %}
                         <label for="{{key}}">{{key}}</label>
                         <br />
-                        <input type="{{value[0]}}" name="{{key}}" value="{{value[1]}}"/>
+                        <input type="{{settings[key][0]}}" name="{{key}}" value="{{settings[key][1]}}"/>
                         <br />
                     {% endfor %}
                 </fieldset>
