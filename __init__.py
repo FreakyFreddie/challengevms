@@ -85,7 +85,11 @@ def load(app):
             try:
                 vms = fetch_vm_list_online_offline()
             except (IOError, vim.fault.InvalidLogin):
+                print("SmartConnect to vCenter failed.")
                 errors.append("SmartConnect to vCenter failed.")
+            except Exception as e:
+                print("Caught Exception : " + str(e))
+                return "Caught Exception : " + str(e)
 
             if len(errors) > 0:
                 return render_template('manage.html', errors=errors, virtual_machines=vms)
@@ -100,6 +104,9 @@ def load(app):
         except (IOError, vim.fault.InvalidLogin):
             print("SmartConnect to vCenter failed.")
             return "SmartConnect to vCenter failed."
+        except Exception as e:
+            print("Caught Exception : " + str(e))
+            return "Caught Exception : " + str(e)
 
         print("Connection successful.")
 
@@ -313,8 +320,19 @@ def load(app):
     def powerstate_operation(vm_uuid, operation):
         tasks = []
 
-        service_instance = connect_to_vsphere()
-        vm = fetch_vm_by_uuid(vm_uuid, service_instance)
+        try:
+            service_instance = connect_to_vsphere()
+        except (IOError, vim.fault.InvalidLogin):
+            print("SmartConnect to vCenter failed.")
+            return "SmartConnect to vCenter failed."
+        except Exception as e:
+            print("Caught Exception : " + str(e))
+            return "Caught Exception : " + str(e)
+
+        try:
+            vm = fetch_vm_by_uuid(vm_uuid, service_instance)
+        except Exception as e:
+            return "Caught Exception : " + str(e)
 
         for blacklisted_vm in vm_blacklist:
             if vm.summary.config.name == blacklisted_vm['Name']:

@@ -41,7 +41,7 @@
         {% endfor %}
     </div>
     <div class="row">
-        <h1>Challenge VMs</h1>
+        <h1>vSphere VMs</h1>
         <div class="row" id="vm-list">
             {% for vm in vms %}
                 <div class="btn btn-theme btn-outlined" id="{{ vm["UUID"] }}">
@@ -183,23 +183,7 @@
                         add_new_vm(new_vm_array[i]);
                     }
                 }
-
-                //if not, add to JSON and
             });
-
-
-            // script to refresh VMs dynamically (based on JSON list
-            // when using dictionary, don't forget to order
-            // ping backend every 5 minutes
-
-
-            // backend responds with VMs & their status
-            // load JSON list of VMs
-            // compare VMs
-            // Change status of appropriate VMs
-            //get id, status, domain of div.elements
-            // if id, status & domain are the same, ok
-            // if not, overwrite element contents
         }
 
         function update_existing_vm(vm){
