@@ -49,7 +49,7 @@ def load(app):
             else:
                 #write all key-value pairs to database & redirect to manage
                 for key in settings:
-                    vspherevmsconfigopt = vSphereVMsConfig.query.filter_by(option=key).first()
+                    vspherevmsconfig = vSphereVMsConfig.query.filter_by(option=key).first()
 
                     # if key does not exist in database, add entry, else update
                     if vspherevmsconfig == None:
