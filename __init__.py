@@ -70,20 +70,6 @@ def load(app):
 
             return render_template('init_settings.html', settings=settings)
 
-    # generate dictionary with already filled in config options + empty options
-    def config_opts_db():
-        settings = {}
-
-        for key in valid_settings:
-            vspherevmsconfigopt = vSphereVMsConfig.query.filter_by(option=key).first()
-
-            if vspherevmsconfigopt == None:
-                settings[key] = [valid_settings[key][0], valid_settings[key][1]]
-            else:
-                settings[key] = [valid_settings[key][0], vspherevmsconfigopt.value]
-
-        return settings
-
 
     # Set up route to management interface
     @vspherevms.route('/admin/vspherevms/manage', methods=['GET'])
@@ -109,7 +95,15 @@ def load(app):
     @vspherevms.route('/admin/vspherevms/manage/update', methods=['POST'])
     @admins_only
     def update():
-        return json.dumps(fetch_vm_list_online_offline())
+        try:
+            vms = fetch_vm_list_online_offline()
+        except (IOError, vim.fault.InvalidLogin):
+            print("SmartConnect to vCenter failed.")
+            return "SmartConnect to vCenter failed."
+
+        print("Connection successful.")
+
+        return json.dumps(vms)
     # Check if not in blacklist (after connecting to ...)
 
     @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/poweron', methods=['POST'])
@@ -159,6 +153,22 @@ def load(app):
                 configured = False
 
         return configured
+
+
+    # generate dictionary with already filled in config options + empty options
+    def config_opts_db():
+        settings = {}
+
+        for key in valid_settings:
+            vspherevmsconfigopt = vSphereVMsConfig.query.filter_by(option=key).first()
+
+            if vspherevmsconfigopt == None:
+                settings[key] = [valid_settings[key][0], valid_settings[key][1]]
+            else:
+                settings[key] = [valid_settings[key][0], vspherevmsconfigopt.value]
+
+        return settings
+
 
     def connect_to_vsphere():
         vspherevmsconfigusername = vSphereVMsConfig.query.filter_by(option="Username").first()
@@ -301,11 +311,14 @@ def load(app):
 
 
     def powerstate_operation(vm_uuid, operation):
+        tasks = []
+
         service_instance = connect_to_vsphere()
         vm = fetch_vm_by_uuid(vm_uuid, service_instance)
 
         for blacklisted_vm in vm_blacklist:
             if vm.summary.config.name == blacklisted_vm['Name']:
+                print("Operation failed.")
                 return "Operation failed."
 
 
@@ -313,77 +326,82 @@ def load(app):
         if(vm.summary.runtime.powerState == "poweredOff"):
             # only call powerOn on vm that is off and matches uuid
             if (operation == "powerOn"):
-                try:
-                    tasks = []
-                    tasks.append(vm.PowerOnVM())
+                tasks.append(vm.PowerOnVM())
 
+                try:
                     # Wait for power on to complete
                     WaitForTasks(tasks, service_instance)
-                    return "Success!"
 
                 except vmodl.MethodFault as e:
                     return "Caught vmodl fault : " + e.msg
                 except Exception as e:
                     return "Caught Exception : " + str(e)
+
+                print("Task complete.")
+                return "Success!"
 
 
         elif(vm.summary.runtime.powerState == "poweredOn"):
             if (operation == "Suspend"):
-                try:
-                    tasks = []
-                    tasks.append(vm.SuspendVM())
+                tasks.append(vm.SuspendVM())
 
-                    # Wait for power on to complete
+                try:
+                    # Wait for task to complete
                     WaitForTasks(tasks, service_instance)
-                    return "Success!"
 
                 except vmodl.MethodFault as e:
                     return "Caught vmodl fault : " + e.msg
                 except Exception as e:
                     return "Caught Exception : " + str(e)
+
+                print("Task complete.")
+                return "Success!"
 
             elif (operation == "Shutdown"):
-                try:
-                    tasks = []
-                    tasks.append(vm.ShutdownGuest())
+                tasks.append(vm.ShutdownGuest())
 
-                    # Wait for power on to complete
+                try:
+                    # Wait for task to complete
                     WaitForTasks(tasks, service_instance)
-                    return "Success!"
 
                 except vmodl.MethodFault as e:
                     return "Caught vmodl fault : " + e.msg
                 except Exception as e:
                     return "Caught Exception : " + str(e)
+
+                print("Taks complete.")
+                return "Success!"
 
             elif (operation == "Reboot"):
-                try:
-                    tasks = []
-                    tasks.append(vm.RebootGuest())
+                tasks.append(vm.RebootGuest())
 
-                    # Wait for power on to complete
+                try:
+                    # Wait for task to complete
                     WaitForTasks(tasks, service_instance)
-                    return "Success!"
 
                 except vmodl.MethodFault as e:
                     return "Caught vmodl fault : " + e.msg
                 except Exception as e:
                     return "Caught Exception : " + str(e)
+
+                print("Task complete.")
+                return "Success!"
 
         elif(vm.summary.runtime.powerState == "suspended"):
             if (operation == "Resume"):
-                try:
-                    tasks = []
-                    tasks.append(vm.PowerOnVM())
+                tasks.append(vm.PowerOnVM())
 
+                try:
                     # Wait for power on to complete
                     WaitForTasks(tasks, service_instance)
-                    return "Success!"
 
                 except vmodl.MethodFault as e:
                     return "Caught vmodl fault : " + e.msg
                 except Exception as e:
                     return "Caught Exception : " + str(e)
+
+                print("Taks complete.")
+                return "Success!"
 
         else:
             return "requirements not met."
