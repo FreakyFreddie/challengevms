@@ -60,7 +60,7 @@
                             {% endif %}
                         "></span>{{ vm["State"] }}</li>
                     </ul>
-                    <div class="vm-operations">
+                    <div class="vm-operations row">
                         {% if vm["State"] == "poweredOff" %}
                             <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/poweron" method="POST">
                                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
@@ -73,7 +73,6 @@
                                 <button class="suspend" title="Suspend the VM"><i class="fa fa-pause"></i></button>
                             </form>
                             {% if vm["Vmwaretools"] == "guestToolsRunning" %}
-                                # shut down
                                 <form action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/shutdown" method="POST">
                                     <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                                     <button class="shutdown" title="Shut down the VM"><i class="fa fa-stop"></i></button>
