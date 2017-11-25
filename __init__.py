@@ -37,9 +37,9 @@ def load(app):
             settings = {}
             errors = []
 
-            for key, val in valid_settings:
+            for key in valid_settings:
                 if key in request.form:
-                    settings[key]=[val[0], request.form[key]]
+                    settings[key]=[valid_settings[key][0], request.form[key]]
                 else:
                     errors.append("%s is not a valid setting" % key)
 
@@ -48,17 +48,17 @@ def load(app):
                 return render_template('init_settings.html', errors=errors, settings=settings)
             else:
                 #write all key-value pairs to database & redirect to manage
-                for key,val in settings:
+                for key in settings:
                     vspherevmsconfigopt = vSphereVMsConfig.query.filter_by(option=key).first()
 
                     # if key does not exist in database, add entry, else update
                     if vspherevmsconfig == None:
-                        vspherevmsconfig = vSphereVMsConfig(key,val[1])
+                        vspherevmsconfig = vSphereVMsConfig(key,settings[key][1])
                         db.session.add(vspherevmsconfig)
                         db.session.commit()
                         db.session.flush()
                     else:
-                        vspherevmsconfig.value = val
+                        vspherevmsconfig.value = settings[key]
                         db.session.commit()
                         db.session.flush()
 
@@ -74,13 +74,13 @@ def load(app):
     def config_opts_db():
         settings = {}
 
-        for key, val in valid_settings:
+        for key in valid_settings:
             vspherevmsconfigopt = vSphereVMsConfig.query.filter_by(option=key).first()
 
             if vspherevmsconfigopt == None:
-                settings[key] = [val[0], val[1]]
+                settings[key] = [valid_settings[key][0], valid_settings[key][1]]
             else:
-                settings[key] = [val[0], vspherevmsconfigopt.value]
+                settings[key] = [valid_settings[key][0], vspherevmsconfigopt.value]
 
         return settings
 
@@ -153,7 +153,7 @@ def load(app):
     def is_configured():
         configured = True
 
-        for key, val in valid_settings:
+        for key in valid_settings:
             vspherevmsconfigopt = vSphereVMsConfig.query.filter_by(option=key).first()
             if vspherevmsconfigopt == None:
                 configured = False
@@ -387,5 +387,5 @@ def load(app):
 
         else:
             return "requirements not met."
-        
+
     app.register_blueprint(vspherevms)
