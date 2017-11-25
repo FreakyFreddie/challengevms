@@ -156,7 +156,7 @@
         function refresh_vms(){
             $request = $.ajax({
                 method:"POST",
-                url:"{{ request.script_root }}/admin/vspherevms/manage/update?r=" + new Date().getTime(),
+                url: script_root + "/admin/vspherevms/manage/update?r=" + new Date().getTime(),
                 data: {nonce: "{{ nonce }}"}
             });
 
@@ -217,7 +217,6 @@
 
         function fill_box(vm) {
             var nonce = {{ nonce }};
-            var script_root = {{ request.script_root }};
 
             var selector = "#" + vm["UUID"];
             var html = '<ul class="list-unstyled">\n' +
