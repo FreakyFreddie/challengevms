@@ -58,7 +58,7 @@ def load(app):
                         db.session.commit()
                         db.session.flush()
                     else:
-                        vspherevmsconfig.value = settings[key]
+                        vspherevmsconfig.value = settings[key][1]
                         db.session.commit()
                         db.session.flush()
 
