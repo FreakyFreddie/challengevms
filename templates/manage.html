@@ -43,7 +43,7 @@
     <div class="row">
         <h1>vSphere VMs</h1>
         <div class="row" id="vm-list">
-            {% for vm in vms %}
+            {% for vm in virtual_machines %}
                 <div class="btn btn-theme btn-outlined" id="{{ vm["UUID"] }}">
                     <ul class="list-unstyled">
                         <li class="Name">{{ vm["Name"] }}</li>
