@@ -66,28 +66,28 @@
                     </ul>
                     <div class="vm-operations row">
                         {% if vm["State"] == "poweredOff" %}
-                            <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/poweron" method="POST">
+                            <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/poweron" method="POST">
                                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                                 <button class="play" title="Start the VM"><i class="fa fa-play"></i></button>
                             </form>
 
                         {% elif vm["State"] == "poweredOn" %}
-                            <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/suspend" method="POST">
+                            <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/suspend" method="POST">
                                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                                 <button class="suspend" title="Suspend the VM"><i class="fa fa-pause"></i></button>
                             </form>
                             {% if vm["Vmwaretools"] == "guestToolsRunning" %}
-                                <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/shutdown" method="POST">
+                                <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/shutdown" method="POST">
                                     <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                                     <button class="shutdown" title="Shut down the VM"><i class="fa fa-stop"></i></button>
                                 </form>
-                                <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/reboot" method="POST">
+                                <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/reboot" method="POST">
                                     <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                                     <button class="restart" title="Restart the VM"><i class="fa fa-refresh"></i></button>
                                 </form>
                             {% endif %}
                         {% elif vm["State"] == "suspended" %}
-                            <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/{{ vm["UUID"] }}/resume" method="POST">
+                            <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/resume" method="POST">
                                 <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
                                 <button class="play" title="Resume the VM"><i class="fa fa-play"></i></button>
                             </form>
@@ -237,7 +237,7 @@
             if (vm["State"] === "poweredOff") {
                 html += '<form class="vm-control" action="' +
                     script_root +
-                    '/admin/vspherevms/' +
+                    '/admin/vspherevms/manage/vm/' +
                     vm["UUID"] +
                     '/poweron" method="POST">\n' +
                     '<input id="nonce" value="' +
@@ -249,7 +249,7 @@
             else if (vm["State"] === "poweredOn") {
                 html += '<form class="vm-control" action="' +
                     script_root +
-                    '/admin/vspherevms/' +
+                    '/admin/vspherevms/manage/vm/' +
                     vm["UUID"] +
                     '/suspend" method="POST">\n' +
                     '<input id="nonce" value="' +
@@ -261,7 +261,7 @@
                 if (vm["Vmwaretools"] === "guestToolsRunning") {
                     html = '<form class="vm-control" action="' +
                         script_root +
-                        '/admin/vspherevms/' +
+                        '/admin/vspherevms/manage/vm/' +
                         vm["UUID"] +
                         '/shutdown" method="POST">\n' +
                         '<input id="nonce" value="' +
@@ -271,7 +271,7 @@
                         '</form>\n' +
                         '<form class="vm-control" action="' +
                         script_root +
-                        '/admin/vspherevms/' +
+                        '/admin/vspherevms/manage/vm/' +
                         vm["UUID"] +
                         '/restart" method="POST">\n' +
                         '<input id="nonce" value="' +
@@ -284,7 +284,7 @@
             else if (vm["State"] === "suspended") {
                 html += '<form class="vm-control" action="' +
                     script_root +
-                    '/admin/vspherevms/' +
+                    '/admin/vspherevms/manage/vm/' +
                     vm["UUID"] +
                     '/resume" method="POST">\n' +
                     '<input id="nonce" value="' +
