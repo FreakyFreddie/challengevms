@@ -109,7 +109,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript">
         var vms = [
-            {% for vm in vms %}
+            {% for vm in virtual_machines %}
                 {{ '{' }}
                     "Name":{{ vm["Name"] }},
                     "UUID":{{ vm["UUID"] }},
@@ -149,7 +149,7 @@
                     refresh_vms();
                 }, 'json');
 
-            return false;
+                return false;
             });
 
             //refresh VMs every x milliseconds
