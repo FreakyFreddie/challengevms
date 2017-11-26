@@ -343,7 +343,7 @@ def load(app):
         if(vm.summary.runtime.powerState == "poweredOff"):
             # only call powerOn on vm that is off and matches uuid
             if (operation == "powerOn"):
-                tasks.append(vm.PowerOnVM())
+                tasks.append(vm.PowerOn())
 
                 try:
                     # Wait for power on to complete
@@ -360,7 +360,7 @@ def load(app):
 
         elif(vm.summary.runtime.powerState == "poweredOn"):
             if (operation == "Suspend"):
-                tasks.append(vm.SuspendVM())
+                tasks.append(vm.Suspend())
 
                 try:
                     # Wait for task to complete
@@ -406,7 +406,7 @@ def load(app):
 
         elif(vm.summary.runtime.powerState == "suspended"):
             if (operation == "Resume"):
-                tasks.append(vm.PowerOnVM())
+                tasks.append(vm.PowerOn())
 
                 try:
                     # Wait for power on to complete
