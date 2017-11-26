@@ -122,7 +122,7 @@
 
         //If you want to add content dynamically and still need it to work, and also with more than one form, you can do this:
         $(document).ready(function() {
-            $('form').live('submit', function () {
+            $('form').on('submit', function () {
                 $.post($(this).attr('action'), $(this).serialize(), function (response) {
                     var html = '';
 
