@@ -111,11 +111,11 @@
         var vms = [
             {% for vm in virtual_machines %}
                 {{ '{' }}
-                    "Name":{{ vm["Name"] }},
-                    "UUID":{{ vm["UUID"] }},
-                    "State":{{ vm["State"] }},
-                    "Ipaddress":{{ vm["Ipaddress"] }},
-                    "Vmwaretools":{{ vm["Vmwaretools"] }}
+                    "Name" : "{{ vm["Name"] }}",
+                    "UUID" : "{{ vm["UUID"] }}",
+                    "State" : "{{ vm["State"] }}",
+                    "Ipaddress" : "{{ vm["Ipaddress"] }}",
+                    "Vmwaretools" : "{{ vm["Vmwaretools"] }}"
                 {{ '}' }}{{ "," if not loop.last }}
             {% endfor %}
         ];
