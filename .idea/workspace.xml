@@ -11,11 +11,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="manage.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="manage.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/templates/manage.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="271">
-              <caret line="68" column="138" lean-forward="false" selection-start-line="68" selection-start-column="131" selection-end-line="68" selection-end-column="138" />
+            <state relative-caret-position="334">
+              <caret line="213" column="30" lean-forward="true" selection-start-line="213" selection-start-column="30" selection-end-line="213" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -51,10 +51,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="565">
+            <state relative-caret-position="3146">
               <caret line="416" column="38" lean-forward="true" selection-start-line="416" selection-start-column="38" selection-end-line="416" selection-end-column="38" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
@@ -85,7 +85,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>split</find>
       <find>initial</find>
       <find>package.setup</find>
       <find>manage.htm</find>
@@ -115,6 +114,7 @@
       <find>except</find>
       <find>powerstate</find>
       <find>poweron</find>
+      <find>PowerOnVM</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -155,8 +155,8 @@
         <option value="$PROJECT_DIR$/models.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/templates/init_settings.html" />
-        <option value="$PROJECT_DIR$/templates/manage.html" />
         <option value="$PROJECT_DIR$/__init__.py" />
+        <option value="$PROJECT_DIR$/templates/manage.html" />
       </list>
     </option>
   </component>
@@ -412,21 +412,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/manage.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="271">
-          <caret line="68" column="138" lean-forward="false" selection-start-line="68" selection-start-column="131" selection-end-line="68" selection-end-column="138" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="565">
+        <state relative-caret-position="3146">
           <caret line="416" column="38" lean-forward="true" selection-start-line="416" selection-start-column="38" selection-end-line="416" selection-end-column="38" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/manage.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="334">
+          <caret line="213" column="30" lean-forward="true" selection-start-line="213" selection-start-column="30" selection-end-line="213" selection-end-column="30" />
+          <folding />
         </state>
       </provider>
     </entry>
