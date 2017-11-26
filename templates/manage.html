@@ -1,28 +1,29 @@
 {% extends "admin/base.html" %}
 {% block stylesheets %}
 <style>
-     .circle{
-          height: 10px;
-          width: 10px;
-          border-radius: 50%;
-          margin-top: 4px;
-         display: block;
-     }
+    .circle{
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        margin-top: 4px;
+        display: block;
+        float: left;
+    }
 
-     .green {
-           background: green;
-     }
+    .green {
+        background: green;
+    }
 
      .red {
-           background: red;
+        background: red;
      }
 
      .orange {
-           background: orange;
+        background: orange;
      }
 
      .gray {
-           background: gray;
+        background: gray;
      }
 
      .vm-operations{
@@ -210,13 +211,13 @@
 
             var selector = "#" + vm["UUID"];
             var html = '<ul class="list-unstyled">\n' +
-                '   <li class="Name">' +
+                '<li class="Name">' +
                 vm["Name"] +
-                '</ul>\n' +
-                '   <li class="Ipaddress">' +
+                '</li>\n' +
+                '<li class="Ipaddress">' +
                 vm["Ipaddress"] +
-                '</ul>\n' +
-                '   <li class="State"><span class="circle ';
+                '</li>\n' +
+                '<li class="State"><span class="circle ';
 
             if (vm["State"] === "poweredOn") {
                 html += "green";
