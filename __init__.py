@@ -96,7 +96,7 @@ def load(app):
 
             return render_template('manage.html', virtual_machines=vms)
 
-    @vspherevms.route('/admin/vspherevms/manage/update', methods=['POST'])
+    @vspherevms.route('/admin/vspherevms/manage/update', methods=['GET', 'POST'])
     @admins_only
     def update():
         try:
@@ -113,27 +113,27 @@ def load(app):
         return json.dumps(vms)
     # Check if not in blacklist (after connecting to ...)
 
-    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/poweron', methods=['POST'])
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/poweron', methods=['GET', 'POST'])
     @admins_only
     def poweron_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "powerOn")
 
-    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/shutdown', methods=['POST'])
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/shutdown', methods=['GET', 'POST'])
     @admins_only
     def suspend_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "Suspend")
 
-    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/shutdown', methods=['POST'])
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/shutdown', methods=['GET', 'POST'])
     @admins_only
     def shutdown_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "Shutdown")
 
-    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/restart', methods=['POST'])
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/restart', methods=['GET', 'POST'])
     @admins_only
     def restart_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "Reboot")
 
-    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/resume', methods=['POST'])
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/resume', methods=['GET', 'POST'])
     @admins_only
     def resume_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "Resume")
