@@ -124,6 +124,7 @@
                 // Stop form from submitting normally
                 event.preventDefault();
 
+                //url, data, success, datatype
                 $.post($(this).attr('action'), $(this).serialize(), function (response) {
                     var html = '';
 
@@ -153,6 +154,9 @@
                 .done(function() {
                     var html = '';
 
+
+                    alert( "done" );
+
                     // if response is empty, print ok, else print error
                     if (response === "Success!") {
                         html = '<div class="alert alert-success alert-dismissable" role="alert">\n' +
@@ -176,9 +180,6 @@
                     refresh_vms();
                 })
 
-                .fail(function() {
-                    alert( "error" );
-                });
 
                 return false;
             });
