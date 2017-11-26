@@ -108,26 +108,53 @@
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript">
-        var vms = [
-            {% for vm in virtual_machines %}
+        var vms = [{% for vm in virtual_machines %}
                 {{ '{' }}
                     "Name" : "{{ vm["Name"] }}",
                     "UUID" : "{{ vm["UUID"] }}",
                     "State" : "{{ vm["State"] }}",
                     "Ipaddress" : "{{ vm["Ipaddress"] }}",
                     "Vmwaretools" : "{{ vm["Vmwaretools"] }}"
-                {{ '}' }}{{ "," if not loop.last }}
-            {% endfor %}
+                {{ '}' }}{{ "," if not loop.last }}{% endfor %}
         ];
 
         //If you want to add content dynamically and still need it to work, and also with more than one form, you can do this:
         $(document).ready(function() {
-            $('form').on('submit', function () {
+            $('form').submit(function () {
+                // Stop form from submitting normally
+                event.preventDefault();
+
                 $.post($(this).attr('action'), $(this).serialize(), function (response) {
                     var html = '';
 
                     // if response is empty, print ok, else print error
-                    if (response == "Success!") {
+                    if (response === "Success!") {
+                        html = '<div class="alert alert-success alert-dismissable" role="alert">\n' +
+                            '<span class="sr-only">Success:</span>\n' +
+                            'The operation has been successfully completed.' +
+                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                            '<span aria-hidden="true">×</span></button>\n' +
+                            '</div>';
+                    }
+                    else{
+                        html = '<div class="alert alert-danger alert-dismissable" role="alert">\n' +
+                            '<span class="sr-only">Error:</span>\n' +
+                            response +
+                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                            '<span aria-hidden="true">×</span></button>\n' +
+                            '</div>';
+                    }
+
+                    $("#errordiv").append(html);
+
+
+                }, 'json')
+
+                .done(function() {
+                    var html = '';
+
+                    // if response is empty, print ok, else print error
+                    if (response === "Success!") {
                         html = '<div class="alert alert-success alert-dismissable" role="alert">\n' +
                             '<span class="sr-only">Success:</span>\n' +
                             'The operation has been successfully completed.' +
@@ -147,7 +174,11 @@
                     $("#errordiv").append(html);
 
                     refresh_vms();
-                }, 'json');
+                })
+
+                .fail(function() {
+                    alert( "error" );
+                });
 
                 return false;
             });
