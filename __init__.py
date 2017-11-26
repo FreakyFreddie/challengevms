@@ -118,7 +118,7 @@ def load(app):
     def poweron_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "powerOn")
 
-    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/shutdown', methods=['GET', 'POST'])
+    @vspherevms.route('/admin/challengeVMs/manage/vm/<string:vm_uuid>/suspend', methods=['GET', 'POST'])
     @admins_only
     def suspend_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "Suspend")
