@@ -278,7 +278,8 @@ def load(app):
         objSpecs = [vmodl.query.PropertyCollector.ObjectSpec(obj=task)
                     for task in tasks]
         propSpec = vmodl.query.PropertyCollector.PropertySpec(type=vim.Task,
-                                                              pathSet=[], all=True)
+                                                              pathSet=[],
+                                                              all=True)
         filterSpec = vmodl.query.PropertyCollector.FilterSpec()
         filterSpec.objectSet = objSpecs
         filterSpec.propSet = [propSpec]
@@ -343,9 +344,9 @@ def load(app):
         if(vm.summary.runtime.powerState == "poweredOff"):
             # only call powerOn on vm that is off and matches uuid
             if (operation == "powerOn"):
-                tasks.append(vm.PowerOn())
-
                 try:
+                    tasks.append(vm.PowerOn())
+
                     # Wait for power on to complete
                     WaitForTasks(tasks, service_instance)
 
@@ -360,9 +361,9 @@ def load(app):
 
         elif(vm.summary.runtime.powerState == "poweredOn"):
             if (operation == "Suspend"):
-                tasks.append(vm.Suspend())
-
                 try:
+                    tasks.append(vm.Suspend())
+
                     # Wait for task to complete
                     WaitForTasks(tasks, service_instance)
 
@@ -375,40 +376,37 @@ def load(app):
                 return "Success!"
 
             elif (operation == "Shutdown"):
-                tasks.append(vm.ShutdownGuest())
-
                 try:
-                    # Wait for task to complete
-                    WaitForTasks(tasks, service_instance)
+                    # This task returns nothing since it's executed in the guest VM
+                    tasks.append(vm.ShutdownGuest())
 
                 except vmodl.MethodFault as e:
                     return "Caught vmodl fault : " + e.msg
                 except Exception as e:
                     return "Caught Exception : " + str(e)
 
-                print("Taks complete.")
-                return "Success!"
+                print("Shutdown signal send.")
+                return "Shutdown signal send."
 
             elif (operation == "Reboot"):
-                tasks.append(vm.RebootGuest())
 
                 try:
-                    # Wait for task to complete
-                    WaitForTasks(tasks, service_instance)
+                    # This task returns nothing since it's executed in the guest VM
+                    vm.RebootGuest()
 
                 except vmodl.MethodFault as e:
                     return "Caught vmodl fault : " + e.msg
                 except Exception as e:
                     return "Caught Exception : " + str(e)
 
-                print("Task complete.")
-                return "Success!"
+                print("Reboot signal send.")
+                return "Reboot signal send."
 
         elif(vm.summary.runtime.powerState == "suspended"):
             if (operation == "Resume"):
-                tasks.append(vm.PowerOn())
-
                 try:
+                    tasks.append(vm.PowerOn())
+
                     # Wait for power on to complete
                     WaitForTasks(tasks, service_instance)
 
