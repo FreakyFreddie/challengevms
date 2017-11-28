@@ -89,10 +89,10 @@ def load(app):
                 errors.append("SmartConnect to vCenter failed.")
             except Exception as e:
                 print("Caught Exception : " + str(e))
-                return "Caught Exception : " + str(e)
+                errors.append("Caught Exception : " + str(e))
 
             if len(errors) > 0:
-                return render_template('manage.html', errors=errors, virtual_machines=vms)
+                return render_template('manage.html', errors=errors, virtual_machines=[])
 
             return render_template('manage.html', virtual_machines=vms)
 
@@ -111,29 +111,28 @@ def load(app):
         print("Connection successful.")
 
         return json.dumps(vms)
-    # Check if not in blacklist (after connecting to ...)
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/poweron', methods=['GET', 'POST'])
+    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/poweron', methods=['POST'])
     @admins_only
     def poweron_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "powerOn")
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/suspend', methods=['GET', 'POST'])
+    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/suspend', methods=['POST'])
     @admins_only
     def suspend_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "Suspend")
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/shutdown', methods=['GET', 'POST'])
+    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/shutdown', methods=['POST'])
     @admins_only
     def shutdown_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "Shutdown")
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/restart', methods=['GET', 'POST'])
+    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/restart', methods=['POST'])
     @admins_only
     def restart_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "Reboot")
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/resume', methods=['GET', 'POST'])
+    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/resume', methods=['POST'])
     @admins_only
     def resume_vm(vm_uuid):
         return powerstate_operation(vm_uuid, "Resume")
