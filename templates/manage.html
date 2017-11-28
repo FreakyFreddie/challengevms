@@ -113,13 +113,13 @@
         //If you want to add content dynamically and still need it to work, and also with more than one form, you can do this:
         $(document).ready(function() {
             $('form').submit(function () {
+                var html;
+
                 // Stop form from submitting normally
                 event.preventDefault();
 
                 //url, data, success, datatype
                 $.post($(this).attr('action'), $(this).serialize(), function (response) {
-                    var html = '';
-
                     // if response is empty, print ok, else print error
                     if (response === "Success!") {
                         html = '<div class="alert alert-success alert-dismissable" role="alert">\n' +
@@ -154,20 +154,17 @@
                             '</div>';
                     }
 
-                    $("#errordiv").append(html);
-
                     refresh_vms();
                 }).fail(function() {
-                    var html = '<div class="alert alert-danger alert-dismissable" role="alert">\n' +
+                    html = '<div class="alert alert-danger alert-dismissable" role="alert">\n' +
                             '<span class="sr-only">Error:</span>\n' +
                             'The request could not be completed.' +
                             '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
                             '<span aria-hidden="true">×</span></button>\n' +
                             '</div>';
-
-
-                    $("#errordiv").append(html);
                 });
+
+                $("#errordiv").append(html);
 
                 return false;
             });
