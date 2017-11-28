@@ -12,7 +12,7 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
       <file leaf-file-name="manage.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/manage.html">
+        <entry file="file://$PROJECT_DIR$/vvms_templates/manage.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-456">
               <caret line="106" column="31" lean-forward="false" selection-start-line="106" selection-start-column="31" selection-end-line="106" selection-end-column="31" />
@@ -74,8 +74,8 @@
       <file leaf-file-name="__init__.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="544">
-              <caret line="78" column="43" lean-forward="false" selection-start-line="78" selection-start-column="43" selection-end-line="78" selection-end-column="43" />
+            <state relative-caret-position="129">
+              <caret line="19" column="0" lean-forward="true" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -84,7 +84,7 @@
         </entry>
       </file>
       <file leaf-file-name="init_settings.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/init_settings.html">
+        <entry file="file://$PROJECT_DIR$/vvms_templates/init_settings.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="271">
               <caret line="15" column="23" lean-forward="false" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="23" />
@@ -218,7 +218,7 @@
             <path>
               <item name="challengevms" type="b2602c69:ProjectViewProjectNode" />
               <item name="challengevms" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
+              <item name="vvms_templates" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -318,7 +318,7 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/init_config.html" />
-    <entry file="file://$PROJECT_DIR$/templates/manage.html">
+    <entry file="file://$PROJECT_DIR$/vvms_templates/manage.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
@@ -392,7 +392,7 @@
     <entry file="file://$PROJECT_DIR$/vplatforms/vsphere/config.ini" />
     <entry file="file://$PROJECT_DIR$/vplatforms/vsphere/__init__.py" />
     <entry file="file://$PROJECT_DIR$/templates/init_config.html" />
-    <entry file="file://$PROJECT_DIR$/templates/init_settings.html">
+    <entry file="file://$PROJECT_DIR$/vvms_templates/init_settings.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="271">
           <caret line="15" column="23" lean-forward="false" selection-start-line="15" selection-start-column="22" selection-end-line="15" selection-end-column="23" />
@@ -400,7 +400,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/manage.html">
+    <entry file="file://$PROJECT_DIR$/vvms_templates/manage.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-456">
           <caret line="106" column="31" lean-forward="false" selection-start-line="106" selection-start-column="31" selection-end-line="106" selection-end-column="31" />
@@ -450,8 +450,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="78" column="43" lean-forward="false" selection-start-line="78" selection-start-column="43" selection-end-line="78" selection-end-column="43" />
+        <state relative-caret-position="129">
+          <caret line="19" column="0" lean-forward="true" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>

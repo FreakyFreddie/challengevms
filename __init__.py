@@ -19,7 +19,7 @@ def load(app):
     app.db.create_all()
 
     # create plugin blueprint with template folder
-    vspherevms = Blueprint('vspherevms', __name__, template_folder='templates')
+    vspherevms = Blueprint('vspherevms', __name__, template_folder='vvms_templates')
 
     #valid configuration settions with their type
     valid_settings ={
@@ -32,7 +32,7 @@ def load(app):
     # Set up route to configuration interface
     @vspherevms.route('/admin/vspherevms/configure', methods=['GET', 'POST'])
     @admins_only
-    def vvms_configure():
+    def configure():
         if request.method == 'POST':
             settings = {}
             errors = []
@@ -76,7 +76,7 @@ def load(app):
     @admins_only
     def manage():
         if not is_configured():
-            return redirect(url_for('.vvms_configure'), code=302)
+            return redirect(url_for('.configure'), code=302)
         else:
             errors = []
             vms = []
