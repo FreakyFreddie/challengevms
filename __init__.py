@@ -32,7 +32,7 @@ def load(app):
     # Set up route to configuration interface
     @vspherevms.route('/admin/vspherevms/configure', methods=['GET', 'POST'])
     @admins_only
-    def configure():
+    def vvms_configure():
         if request.method == 'POST':
             settings = {}
             errors = []
@@ -76,7 +76,7 @@ def load(app):
     @admins_only
     def manage():
         if not is_configured():
-            return redirect(url_for('.configure'), code=302)
+            return redirect(url_for('.vvms_configure'), code=302)
         else:
             errors = []
             vms = []
