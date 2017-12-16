@@ -1,3 +1,2 @@
 pyVmomi
 suds-jurko
-requests
