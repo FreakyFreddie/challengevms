@@ -1,40 +1,41 @@
 {% extends "admin/base.html" %}
 {% block stylesheets %}
-<style>
-    .circle{
-        height: 10px;
-        width: 10px;
-        border-radius: 50%;
-        margin-top: 4px;
-        display: block;
-        float: left;
-    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .circle{
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            margin-top: 4px;
+            display: block;
+            float: left;
+        }
 
-    .green {
-        background: green;
-    }
+        .green {
+            background: green;
+        }
 
-     .red {
-        background: red;
-     }
+         .red {
+            background: red;
+         }
 
-     .orange {
-        background: orange;
-     }
+         .orange {
+            background: orange;
+         }
 
-     .gray {
-        background: gray;
-     }
+         .gray {
+            background: gray;
+         }
 
-     .vm-operations{
-        margin: auto;
-     }
+         .vm-operations{
+            margin: auto;
+         }
 
-    .vm-control{
-        float: left;
-        width: 33%;
-    }
-</style>
+        .vm-control{
+            float: left;
+            width: 33%;
+        }
+    </style>
 {% endblock %}
 {% block content %}
     <div id="errordiv" class="text-center">
@@ -49,53 +50,55 @@
     <div class="container">
         <div class="row">
             <h1>vSphere VMs</h1>
-            <div class="row" id="vm-list">
-                {% for vm in virtual_machines %}
-                    <div class="btn btn-theme btn-outlined" id="{{ vm["UUID"] }}">
-                        <ul class="list-unstyled">
-                            <li class="Name">{{ vm["Name"] }}</li>
-                            <li class="Ipaddress">{{ vm["Ipaddress"] }}</li>
-                            <li class="State"><span class="circle {% if vm["State"] == "poweredOn" %}green{% elif vm["State"] == "poweredOff" %}red{% elif vm["State"] == "suspended" %}orange{% else %}gray{% endif %}"></span>  {{ vm["State"] }}</li>
-                        </ul>
-                        <div class="vm-operations row">
-                            {% if vm["State"] == "poweredOff" %}
-                                <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/poweron" method="POST">
-                                    <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
-                                    <button class="play" title="Start the VM"><i class="fa fa-play"></i></button>
-                                </form>
+        </div>
+        <div class="row" id="vm-list">
+            {% for vm in virtual_machines %}
+                <div class="btn btn-theme btn-outlined" id="{{ vm["UUID"] }}">
+                    <ul class="list-unstyled">
+                        <li class="Name">{{ vm["Name"] }}</li>
+                        <li class="Ipaddress">{{ vm["Ipaddress"] }}</li>
+                        <li class="State"><span class="circle {% if vm["State"] == "poweredOn" %}green{% elif vm["State"] == "poweredOff" %}red{% elif vm["State"] == "suspended" %}orange{% else %}gray{% endif %}"></span>  {{ vm["State"] }}</li>
+                    </ul>
+                    <div class="vm-operations row">
+                        {% if vm["State"] == "poweredOff" %}
+                            <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/poweron" method="POST">
+                                <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                                <button class="play" title="Start the VM"><i class="fa fa-play"></i></button>
+                            </form>
 
-                            {% elif vm["State"] == "poweredOn" %}
-                                <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/suspend" method="POST">
+                        {% elif vm["State"] == "poweredOn" %}
+                            <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/suspend" method="POST">
+                                <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                                <button class="suspend" title="Suspend the VM"><i class="fa fa-pause"></i></button>
+                            </form>
+                            {% if vm["Vmwaretools"] == "guestToolsRunning" %}
+                                <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/shutdown" method="POST">
                                     <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
-                                    <button class="suspend" title="Suspend the VM"><i class="fa fa-pause"></i></button>
+                                    <button class="shutdown" title="Shut down the VM"><i class="fa fa-stop"></i></button>
                                 </form>
-                                {% if vm["Vmwaretools"] == "guestToolsRunning" %}
-                                    <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/shutdown" method="POST">
-                                        <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
-                                        <button class="shutdown" title="Shut down the VM"><i class="fa fa-stop"></i></button>
-                                    </form>
-                                    <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/reboot" method="POST">
-                                        <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
-                                        <button class="restart" title="Restart the VM"><i class="fa fa-refresh"></i></button>
-                                    </form>
-                                {% endif %}
-                            {% elif vm["State"] == "suspended" %}
-                                <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/resume" method="POST">
+                                <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/reboot" method="POST">
                                     <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
-                                    <button class="play" title="Resume the VM"><i class="fa fa-play"></i></button>
+                                    <button class="restart" title="Restart the VM"><i class="fa fa-refresh"></i></button>
                                 </form>
-                            {% else %}
-                                <p>No actions possible</p>
                             {% endif %}
-                        </div>
+                        {% elif vm["State"] == "suspended" %}
+                            <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/resume" method="POST">
+                                <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
+                                <button class="play" title="Resume the VM"><i class="fa fa-play"></i></button>
+                            </form>
+                        {% else %}
+                            <p>No actions possible</p>
+                        {% endif %}
                     </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% endfor %}
         </div>
          <div class="row">
               <h1>Actions</h1>
-              <a class="btn btn-theme btn-outlined" href="{{ request.script_root }}/admin/vspherevms/configure">Change settings<br />+</a>
          </div>
+        <div class="row">
+              <a class="btn btn-theme btn-outlined" href="{{ request.script_root }}/admin/vspherevms/configure">Change settings<br />+</a>
+        </div>
     </div>
 {% endblock %}
 
