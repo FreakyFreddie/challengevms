@@ -11,11 +11,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="vvms_manage.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="vvms_manage.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/vvms_templates/vvms_manage.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="42">
-              <caret line="2" column="117" lean-forward="false" selection-start-line="2" selection-start-column="117" selection-end-line="2" selection-end-column="117" />
+            <state relative-caret-position="350">
+              <caret line="290" column="48" lean-forward="true" selection-start-line="290" selection-start-column="48" selection-end-line="290" selection-end-column="48" />
               <folding />
             </state>
           </provider>
@@ -83,7 +83,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="vvms_init_settings.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="vvms_init_settings.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/vvms_templates/vvms_init_settings.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="441">
@@ -105,7 +105,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>bitbu</find>
       <find>virtua</find>
       <find>settings</find>
       <find>load</find>
@@ -135,7 +134,11 @@
       <find>dns</find>
       <find>config</find>
       <find>blacklist</find>
+      <find>refresh</find>
     </findStrings>
+    <replaceStrings>
+      <replace>undo</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -177,8 +180,8 @@
         <option value="$PROJECT_DIR$/templates/manage.html" />
         <option value="$PROJECT_DIR$/__init__.py" />
         <option value="$PROJECT_DIR$/models.py" />
-        <option value="$PROJECT_DIR$/vvms_templates/vvms_manage.html" />
         <option value="$PROJECT_DIR$/vvms_templates/vvms_init_settings.html" />
+        <option value="$PROJECT_DIR$/vvms_templates/vvms_manage.html" />
       </list>
     </option>
   </component>
@@ -444,18 +447,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vvms_templates/vvms_manage.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="2" column="117" lean-forward="false" selection-start-line="2" selection-start-column="117" selection-end-line="2" selection-end-column="117" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/vvms_templates/vvms_init_settings.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="441">
           <caret line="21" column="47" lean-forward="true" selection-start-line="21" selection-start-column="47" selection-end-line="21" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vvms_templates/vvms_manage.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="350">
+          <caret line="290" column="48" lean-forward="true" selection-start-line="290" selection-start-column="48" selection-end-line="290" selection-end-column="48" />
           <folding />
         </state>
       </provider>

@@ -53,7 +53,7 @@
         </div>
         <div class="row" id="vm-list">
             {% for vm in virtual_machines %}
-                <div class="btn btn-theme btn-outlined" id="{{ vm["UUID"] }}">
+                <div class="col-sm-2 btn btn-theme btn-outlined" id="{{ vm["UUID"] }}">
                     <ul class="list-unstyled">
                         <li class="Name">{{ vm["Name"] }}</li>
                         <li class="Ipaddress">{{ vm["Ipaddress"] }}</li>
@@ -78,7 +78,7 @@
                                 </form>
                                 <form class="vm-control" action="{{ request.script_root }}/admin/vspherevms/manage/vm/{{ vm["UUID"] }}/reboot" method="POST">
                                     <input id="nonce" value="{{ nonce }}" name="nonce" type="hidden" />
-                                    <button class="restart" title="Restart the VM"><i class="fa fa-refresh"></i></button>
+                                    <button class="restart" title="Restart the VM"><i class="fa fa-undo"></i></button>
                                 </form>
                             {% endif %}
                         {% elif vm["State"] == "suspended" %}
@@ -299,7 +299,7 @@
                         '<input id="nonce" value="' +
                         nonce +
                         '" name="nonce" type="hidden" />\n' +
-                        '<button class="restart" title="Restart the VM"><i class="fa fa-refresh"></i></button>\n' +
+                        '<button class="restart" title="Restart the VM"><i class="fa fa-undo"></i></button>\n' +
                         '</form>';
                 }
             }
