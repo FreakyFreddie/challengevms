@@ -103,7 +103,7 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="{{ request.script_root }}/themes/admin/static/js/vendor/jquery.min.js"></script>
     <script type="text/javascript">
         var vms = [{% for vm in virtual_machines %}
                 {{ '{' }}
