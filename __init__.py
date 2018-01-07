@@ -1,4 +1,3 @@
-import os
 from flask import Blueprint, render_template, request, abort, redirect, url_for
 from CTFd.utils import admins_only, is_admin
 from CTFd.models import db
@@ -112,31 +111,110 @@ def load(app):
 
         return json.dumps(vms)
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/poweron', methods=['POST'])
+    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/<string:operation>', methods=['POST'])
     @admins_only
-    def poweron_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "powerOn")
+    def powerstate_operation(vm_uuid, operation):
+        tasks = []
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/suspend', methods=['POST'])
-    @admins_only
-    def suspend_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "Suspend")
+        try:
+            service_instance = connect_to_vsphere()
+        except (IOError, vim.fault.InvalidLogin):
+            print("SmartConnect to vCenter failed.")
+            return "SmartConnect to vCenter failed."
+        except Exception as e:
+            print("Caught Exception : " + str(e))
+            return "Caught Exception : " + str(e)
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/shutdown', methods=['POST'])
-    @admins_only
-    def shutdown_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "Shutdown")
+        try:
+            vm = fetch_vm_by_uuid(vm_uuid, service_instance)
+        except Exception as e:
+            return "Caught Exception : " + str(e)
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/restart', methods=['POST'])
-    @admins_only
-    def restart_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "Reboot")
+        for blacklisted_vm in vm_blacklist:
+            if vm.summary.config.name == blacklisted_vm['Name']:
+                print("Operation failed.")
+                return "Operation failed."
 
-    @vspherevms.route('/admin/vspherevms/manage/vm/<string:vm_uuid>/resume', methods=['POST'])
-    @admins_only
-    def resume_vm(vm_uuid):
-        return powerstate_operation(vm_uuid, "Resume")
 
+        # only call powerOn on vm that is off and matches uuid
+        if(vm.summary.runtime.powerState == "poweredOff"):
+            # only call powerOn on vm that is off and matches uuid
+            if (operation == "poweron"):
+                try:
+                    tasks.append(vm.PowerOn())
+
+                    # Wait for power on to complete
+                    WaitForTasks(tasks, service_instance)
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+                print("Task complete.")
+                return "Success!"
+
+
+        elif(vm.summary.runtime.powerState == "poweredOn"):
+            if (operation == "suspend"):
+                try:
+                    tasks.append(vm.Suspend())
+
+                    # Wait for task to complete
+                    WaitForTasks(tasks, service_instance)
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+                print("Task complete.")
+                return "Success!"
+
+            elif (operation == "shutdown"):
+                try:
+                    # This task returns nothing since it's executed in the guest VM
+                    tasks.append(vm.ShutdownGuest())
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+                print("Shutdown signal send.")
+                return "Shutdown signal send."
+
+            elif (operation == "reboot"):
+                try:
+                    # This task returns nothing since it's executed in the guest VM
+                    vm.RebootGuest()
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+                print("Reboot signal send.")
+                return "Reboot signal send."
+
+        elif(vm.summary.runtime.powerState == "suspended"):
+            if (operation == "resume"):
+                try:
+                    tasks.append(vm.PowerOn())
+
+                    # Wait for power on to complete
+                    WaitForTasks(tasks, service_instance)
+
+                except vmodl.MethodFault as e:
+                    return "Caught vmodl fault : " + e.msg
+                except Exception as e:
+                    return "Caught Exception : " + str(e)
+
+                print("Taks complete.")
+                return "Success!"
+
+        else:
+            return "requirements not met."
 
     def fetch_vm_by_uuid(vm_uuid, service_instance):
         try:
@@ -259,7 +337,7 @@ def load(app):
             vms.append({
                 "Name": name,
                 "UUID": instance_uuid,
-                "State": state,  # powereedOff, poweredOn, ??StandBy, ??unknown, suspended
+                "State": state,  # poweredOff, poweredOn, ??StandBy, ??unknown, suspended
                 "Ipaddress": ipaddress,
                 "Vmwaretools": vmwaretools
             })
@@ -314,110 +392,5 @@ def load(app):
         finally:
             if filter:
                 filter.Destroy()
-
-
-    def powerstate_operation(vm_uuid, operation):
-        tasks = []
-
-        try:
-            service_instance = connect_to_vsphere()
-        except (IOError, vim.fault.InvalidLogin):
-            print("SmartConnect to vCenter failed.")
-            return "SmartConnect to vCenter failed."
-        except Exception as e:
-            print("Caught Exception : " + str(e))
-            return "Caught Exception : " + str(e)
-
-        try:
-            vm = fetch_vm_by_uuid(vm_uuid, service_instance)
-        except Exception as e:
-            return "Caught Exception : " + str(e)
-
-        for blacklisted_vm in vm_blacklist:
-            if vm.summary.config.name == blacklisted_vm['Name']:
-                print("Operation failed.")
-                return "Operation failed."
-
-
-        # only call powerOn on vm that is off and matches uuid
-        if(vm.summary.runtime.powerState == "poweredOff"):
-            # only call powerOn on vm that is off and matches uuid
-            if (operation == "powerOn"):
-                try:
-                    tasks.append(vm.PowerOn())
-
-                    # Wait for power on to complete
-                    WaitForTasks(tasks, service_instance)
-
-                except vmodl.MethodFault as e:
-                    return "Caught vmodl fault : " + e.msg
-                except Exception as e:
-                    return "Caught Exception : " + str(e)
-
-                print("Task complete.")
-                return "Success!"
-
-
-        elif(vm.summary.runtime.powerState == "poweredOn"):
-            if (operation == "Suspend"):
-                try:
-                    tasks.append(vm.Suspend())
-
-                    # Wait for task to complete
-                    WaitForTasks(tasks, service_instance)
-
-                except vmodl.MethodFault as e:
-                    return "Caught vmodl fault : " + e.msg
-                except Exception as e:
-                    return "Caught Exception : " + str(e)
-
-                print("Task complete.")
-                return "Success!"
-
-            elif (operation == "Shutdown"):
-                try:
-                    # This task returns nothing since it's executed in the guest VM
-                    tasks.append(vm.ShutdownGuest())
-
-                except vmodl.MethodFault as e:
-                    return "Caught vmodl fault : " + e.msg
-                except Exception as e:
-                    return "Caught Exception : " + str(e)
-
-                print("Shutdown signal send.")
-                return "Shutdown signal send."
-
-            elif (operation == "Reboot"):
-
-                try:
-                    # This task returns nothing since it's executed in the guest VM
-                    vm.RebootGuest()
-
-                except vmodl.MethodFault as e:
-                    return "Caught vmodl fault : " + e.msg
-                except Exception as e:
-                    return "Caught Exception : " + str(e)
-
-                print("Reboot signal send.")
-                return "Reboot signal send."
-
-        elif(vm.summary.runtime.powerState == "suspended"):
-            if (operation == "Resume"):
-                try:
-                    tasks.append(vm.PowerOn())
-
-                    # Wait for power on to complete
-                    WaitForTasks(tasks, service_instance)
-
-                except vmodl.MethodFault as e:
-                    return "Caught vmodl fault : " + e.msg
-                except Exception as e:
-                    return "Caught Exception : " + str(e)
-
-                print("Taks complete.")
-                return "Success!"
-
-        else:
-            return "requirements not met."
 
     app.register_blueprint(vspherevms)
